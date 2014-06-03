@@ -23,6 +23,13 @@ public:
         TAFT_OGVIE
     };
 
+    enum EllipseType
+    {
+        W_H,
+        W_ELLIP,
+        H_ELLIP
+    };
+
     GeometryTreeItem(const QList<QVariant> &data, TreeItem *parent = 0);
 
     void setContent(const CaseContent &caseContent);
@@ -61,6 +68,24 @@ private:
 
     Qt::CheckState m_xoCheck;
     float m_xo;
+
+    int m_nx;
+    float m_x;
+    float m_r;
+    QVariant m_discon;
+
+    float m_wnose;
+    float m_enose;
+
+    float m_wcentr;
+    float m_ecentr;
+    float m_waft;
+    float m_eaft;
+
+    EllipseType m_ellipseType;
+    QVariant m_h;
+    QVariant m_w;
+    QVariant m_ellip;
 };
 
 #endif // GEOMETRYTREEITEM_H
