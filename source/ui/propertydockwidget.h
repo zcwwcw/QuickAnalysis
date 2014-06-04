@@ -47,6 +47,7 @@ private:
     QtDoublePropertyManager *m_doubleManager;
     QtStringPropertyManager *m_stringManager;
     QtEnumPropertyManager *m_enumManager;
+    QtBoolPropertyManager *m_boolManager;
 };
 
 #endif // PROPERTYDOCKWIDGET_H

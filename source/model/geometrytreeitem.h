@@ -4,6 +4,9 @@
 #include <QStringList>
 #include "treeitem.h"
 #include "casecontent.h"
+#include "propertyconstants.h"
+#include "fltcontreeitem.h"
+#include "refqtreeitem.h"
 
 class GeometryTreeItem : public TreeItem
 {
@@ -15,6 +18,12 @@ public:
         TNOSE_POWER,
         TNOSE_HAACK,
         TNOSE_KARMAN
+    };
+
+    enum HeadType
+    {
+        PASSIVATE,
+        TRUNCATE
     };
 
     enum TaftType
@@ -30,6 +39,14 @@ public:
         H_ELLIP
     };
 
+    enum GeometryType
+    {
+        AXIBOD,
+        AXIBOD_NX,
+        ELLBOD,
+        ELLBOD_NX
+    };
+
     GeometryTreeItem(const QList<QVariant> &data, TreeItem *parent = 0);
 
     void setContent(const CaseContent &caseContent);
@@ -40,18 +57,17 @@ public:
 
     void setNewPropertyCheckState(QString objectName, Qt::CheckState value);
 private:
-    float m_lonse;
+    float m_lnose;
     float m_dnose;
 
     TnoseType m_tnose;
     float m_power;
 
-    Qt::CheckState m_truncCheck;
-    bool m_trunc;
+    HeadType m_headType;
     float m_bnose;
 
     float m_lcentr;
-    float m_decntr;
+    float m_dcentr;
     float m_laft;
     float m_daft;
     Qt::CheckState m_taftCheck;
@@ -86,6 +102,8 @@ private:
     QVariant m_h;
     QVariant m_w;
     QVariant m_ellip;
+
+    GeometryType m_type;
 };
 
 #endif // GEOMETRYTREEITEM_H

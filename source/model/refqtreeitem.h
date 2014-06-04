@@ -8,6 +8,7 @@
 
 class RefqTreeItem : public TreeItem
 {
+    Q_OBJECT
 public:
     enum BlayerType
     {
@@ -30,6 +31,8 @@ public:
     void setNewPropertyData(QString objectName, QString value);
 
     void setNewPropertyCheckState(QString objectName, Qt::CheckState value);
+
+    float getXCGValue() const;
 private:
     float m_xcg;
     float m_zcg;

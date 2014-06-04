@@ -69,18 +69,21 @@ void PropertyDockWidget::initManager()
     m_doubleManager = new QtDoublePropertyManager(this);
     m_stringManager = new QtStringPropertyManager(this);
     m_enumManager = new QtEnumPropertyManager(this);
+    m_boolManager = new QtBoolPropertyManager(this);
 
     //init editor fac
     QtDoubleSpinBoxFactory *doubleEditorFac = new QtDoubleSpinBoxFactory(this);
     QtSpinBoxFactory *intEditorFac = new QtSpinBoxFactory(this);
     QtEnumEditorFactory *enumEditorFac = new QtEnumEditorFactory(this);
     QtLineEditFactory *stringEditorFac = new QtLineEditFactory(this);
+    QtCheckBoxFactory *boolEditorFac = new QtCheckBoxFactory(this);
 
     //set fac for manager
     m_treePropertyBroswer->setFactoryForManager(m_intManager, intEditorFac);
     m_treePropertyBroswer->setFactoryForManager(m_doubleManager, doubleEditorFac);
     m_treePropertyBroswer->setFactoryForManager(m_stringManager, stringEditorFac);
     m_treePropertyBroswer->setFactoryForManager(m_enumManager, enumEditorFac);
+    m_treePropertyBroswer->setFactoryForManager(m_boolManager, boolEditorFac);
 }
 
 void PropertyDockWidget::clear()
@@ -146,6 +149,12 @@ QtProperty *PropertyDockWidget::addProperty(const QHash<QString, QVariant> &prop
         {
             item = m_stringManager->addProperty(showText);
             m_stringManager->setValue(item, value.toString());
+            break;
+        }
+        case PROPERTY_TYPE_BOOL:
+        {
+            item = m_boolManager->addProperty(showText);
+            m_boolManager->setValue(item, value.toBool());
             break;
         }
         case PROPERTY_TYPE_STRING_REG:
@@ -242,6 +251,11 @@ void PropertyDockWidget::updateProperty(const QHash<QString, QVariant> &property
         case PROPERTY_TYPE_STRING:
         {
             m_stringManager->setValue(item, value.toString());
+            break;
+        }
+        case PROPERTY_TYPE_BOOL:
+        {
+            m_boolManager->setValue(item, value.toBool());
             break;
         }
         case PROPERTY_TYPE_STRING_REG:

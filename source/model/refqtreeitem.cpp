@@ -246,3 +246,8 @@ void RefqTreeItem::setNewPropertyCheckState(QString objectName, Qt::CheckState v
         m_scaleCheck = value;
     }
 }
+
+float RefqTreeItem::getXCGValue() const
+{
+    return m_xcg;
+}

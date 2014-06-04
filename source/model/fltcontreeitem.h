@@ -11,6 +11,7 @@
 
 class FltconTreeItem : public TreeItem
 {
+    Q_OBJECT
 public:
     enum TYPE
     {
@@ -34,6 +35,8 @@ public:
     void setNewPropertyData(QString objectName, QString value);
 
     void setNewPropertyCheckState(QString objectName, Qt::CheckState value);
+
+    int getNamchOrNvinf() const;
 private:
     QVariant setNewContent(QVariant oriData, int setCount, QString appendStr);
 private:

@@ -433,6 +433,20 @@ void FltconTreeItem::setNewPropertyCheckState(QString objectName, Qt::CheckState
     }
 }
 
+int FltconTreeItem::getNamchOrNvinf() const
+{
+    int count = 0;
+    if(m_type == MACH)
+    {
+        count = m_nmach;
+    }
+    else if(m_type == VINF)
+    {
+        count = m_nvinf;
+    }
+    return count;
+}
+
 QVariant FltconTreeItem::setNewContent(QVariant oriData, int setCount, QString appendStr)
 {
     QVariant newData = oriData;

@@ -33,9 +33,25 @@ const QLatin1String EAFTKEY("EAFT");
 const QLatin1String WKEY("W");
 const QLatin1String HKEY("H");
 const QLatin1String ELLIPKEY("ELLIP");
+const QLatin1String HEADTYPEKEY("HEADTYPE");
+
+const QList<QVariant> TnoseList(QList<QVariant>() << QVariant(QObject::tr("CONICAL"))
+                                << QVariant(QObject::tr("OGVIE")) << QVariant(QObject::tr("POWER"))
+                                << QVariant(QObject::tr("HAACK")) << QVariant(QObject::tr("KARMAN")));
+
+const QList<QVariant> HeadTypeList(QList<QVariant>() << QVariant(QObject::tr("PASSIVATE"))
+                                   << QVariant(QObject::tr("TRUNCATE")));
+
+const QList<QVariant> TaftList(QList<QVariant>() << QVariant(QObject::tr("CONICAL(CONE)"))
+                               << QVariant(QObject::tr("OGVIE")));
 
 GeometryTreeItem::GeometryTreeItem(const QList<QVariant> &data, TreeItem *parent)
-    :TreeItem(data, parent)
+    :TreeItem(data, parent), m_lnose(0.0), m_dnose(0.0), m_tnose(TNOSE_OGVIE),
+      m_power(0.0), m_headType(PASSIVATE), m_bnose(0.0),
+      m_lcentr(0.0), m_dcentr(0.0), m_laft(0.0), m_daft(0.01), m_taft(TAFT_CONICAL),
+      m_dexit(0.0), m_base(false), m_betan(0.0), m_xoCheck(Qt::Unchecked), m_xo(0.0),
+      m_nx(0), m_x(0.0), m_r(0.0), m_wnose(1.0), m_enose(1.0), m_wcentr(1.0), m_ecentr(1.0),
+      m_waft(0.01), m_eaft(1.0), m_ellipseType(W_H), m_type(AXIBOD)
 {
 }
 
@@ -47,12 +63,13 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
         QHash<QString, CaseContent> childContent = caseContent.childContent;
         if(childContent.find(AXIBODKEY) != childContent.end())
         {
+            m_type = AXIBOD;
             QHash<QString, CaseContent> axibodContent = childContent.value(AXIBODKEY).childContent;
             //LNOSE
             if(axibodContent.find(LNOSEKEY) != axibodContent.end())
             {
                 QString lnoseValue = axibodContent.value(LNOSEKEY).value.toString();
-                m_lonse = lnoseValue.toFloat();
+                m_lnose = lnoseValue.toFloat();
             }
             //DNOSE
             if(axibodContent.find(DNOSEKEY) != axibodContent.end())
@@ -97,11 +114,11 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
                 QString truncValue = axibodContent.value(TRUNCKEY).value.toString();
                 if(truncValue == "TRUE")
                 {
-                    m_trunc = true;
+                    m_headType = TRUNCATE;
                 }
                 else if(truncValue == "FALSE")
                 {
-                    m_trunc = false;
+                    m_headType = PASSIVATE;
                 }
             }
             //BNOSE
@@ -109,7 +126,6 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             {
                 QString bnoseValue = axibodContent.value(BNOSEKEY).value.toString();
                 m_bnose = bnoseValue.toFloat();
-                m_truncCheck = Qt::Checked;
             }
             //LCENTR
             if(axibodContent.find(LCENTRKEY) != axibodContent.end())
@@ -121,7 +137,7 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             if(axibodContent.find(DCENTRKEY) != axibodContent.end())
             {
                 QString dcentrValue = axibodContent.value(DCENTRKEY).value.toString();
-                m_decntr = dcentrValue.toFloat();
+                m_dcentr = dcentrValue.toFloat();
             }
             //LAFT
             if(axibodContent.find(LAFTKEY) != axibodContent.end())
@@ -224,6 +240,7 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             {
                 QString nxValue = axibodContent.value(NXKEY).value.toString();
                 m_nx = nxValue.toInt();
+                m_type = AXIBOD_NX;
             }
             //X
             if(axibodContent.find(XKEY) != axibodContent.end())
@@ -252,12 +269,13 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
         }
         else if(childContent.find(ELLBODKEY) != childContent.end())
         {
+            m_type = ELLBOD;
             QHash<QString, CaseContent> ellbodContent = childContent.value(ELLBODKEY).childContent;
             //LNOSE
             if(ellbodContent.find(LNOSEKEY) != ellbodContent.end())
             {
                 QString lnoseValue = ellbodContent.value(LNOSEKEY).value.toString();
-                m_lonse = lnoseValue.toFloat();
+                m_lnose = lnoseValue.toFloat();
             }
             //WNOSE
             if(ellbodContent.find(WNOSEKEY) != ellbodContent.end())
@@ -308,11 +326,11 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
                 QString truncValue = ellbodContent.value(TRUNCKEY).value.toString();
                 if(truncValue == "TRUE")
                 {
-                    m_trunc = true;
+                    m_headType = TRUNCATE;
                 }
                 else if(truncValue == "FALSE")
                 {
-                    m_trunc = false;
+                    m_headType = PASSIVATE;
                 }
             }
             //BNOSE
@@ -320,7 +338,6 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             {
                 QString bnoseValue = ellbodContent.value(BNOSEKEY).value.toString();
                 m_bnose = bnoseValue.toFloat();
-                m_truncCheck = Qt::Checked;
             }
             //LCENTR
             if(ellbodContent.find(LCENTRKEY) != ellbodContent.end())
@@ -389,6 +406,7 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             //NX
             if(ellbodContent.find(NXKEY) != ellbodContent.end())
             {
+                m_type = ELLBOD_NX;
                 QString nxValue = ellbodContent.value(NXKEY).value.toString();
                 m_nx = nxValue.toInt();
             }
@@ -485,7 +503,148 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
 
 QList<QVariant> GeometryTreeItem::getProperty() const
 {
-    return QList<QVariant>();
+    QList<QVariant> propertyItems;
+    switch(m_type)
+    {
+    case AXIBOD:
+    {
+        //LNOSE
+        propertyItems.append(getPropertyItem(LNOSEKEY, tr("LNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_lnose,
+                                             0.0, INFINITYNUMBER, 2));
+        //DNOSE
+        propertyItems.append(getPropertyItem(DNOSEKEY, tr("DNOSE(L*L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_dnose,
+                                             0.0, INFINITYNUMBER, 2));
+        //TNOSE
+        if(m_tnose == TNOSE_POWER)
+        {
+            PropertyItem tnoseGroupItem = getPropertyItem(TNOSEKEY, tr("TNOSE"),
+                                                          PROPERTY_TYPE_ENUM_GROUP, m_tnose,
+                                                          0, 0, 0, false, Qt::Unchecked, TnoseList);
+            QList<QVariant> tnoseChildProperty;
+            //POWER
+            PropertyItem powerItem = getPropertyItem(POWERKEY, tr("POWER"),
+                                                     PROPERTY_TYPE_DOUBLE, m_power, 0.0,
+                                                     1.0, 2);
+            tnoseChildProperty.append(powerItem);
+
+            tnoseGroupItem.insert(PropertyConstants::CHILD_PROPERTY, tnoseChildProperty);
+            propertyItems.append(tnoseGroupItem);
+        }
+        else
+        {
+            propertyItems.append(getPropertyItem(TNOSEKEY, tr("TNOSE"),
+                                                 PROPERTY_TYPE_ENUM, m_tnose,
+                                                 0, 0, 0, false, Qt::Unchecked, TnoseList));
+        }
+        //HEADTYPE
+        propertyItems.append(getPropertyItem(HEADTYPEKEY, tr("HEADTYPE"),
+                                             PROPERTY_TYPE_ENUM, m_headType,
+                                             0, 0, 0, false, Qt::Unchecked, HeadTypeList));
+        //BNOSE
+        propertyItems.append(getPropertyItem(BNOSEKEY, tr("BNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_bnose,
+                                             0.0, INFINITYNUMBER, 2));
+        //LCENTR
+        propertyItems.append(getPropertyItem(LCENTRKEY, tr("LCENTR(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_lcentr,
+                                             0.0, INFINITYNUMBER, 2));
+        //DCENTR
+        propertyItems.append(getPropertyItem(DCENTRKEY, tr("DCENTR(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_dcentr,
+                                             0.01, INFINITYNUMBER, 2));
+        //LAFT
+        propertyItems.append(getPropertyItem(LAFTKEY, tr("LAFT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_laft,
+                                             0.0, INFINITYNUMBER, 2));
+        //DAFT
+        propertyItems.append(getPropertyItem(DAFTKEY, tr("DAFT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_daft,
+                                             0.01, INFINITYNUMBER, 2));
+        //TAFT
+        propertyItems.append(getPropertyItem(TAFTKEY, tr("TAFT"),
+                                             PROPERTY_TYPE_ENUM, m_taft,
+                                             0, 0, 0, true, m_taftCheck, TaftList));
+        //DEXIT
+        propertyItems.append(getPropertyItem(DEXITKEY, tr("DEXIT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_dexit,
+                                             0, m_daft, 2));
+        //BASE
+        propertyItems.append(getPropertyItem(BASEKEY, tr("BASE"),
+                                             PROPERTY_TYPE_BOOL, m_base));
+
+        //BETAN-JMACH-PRAT-TRAT
+        if(m_base && m_dexit - 0.0 < 0.0001)
+        {
+            FltconTreeItem *fltConTreeItem = NULL;
+            for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
+            {
+                fltConTreeItem = qobject_cast<FltconTreeItem *>(m_parentItem->child(i));
+                if(fltConTreeItem)
+                {
+                    break;
+                }
+            }
+            int count = fltConTreeItem->getNamchOrNvinf();
+            //BETAN
+            propertyItems.append(getPropertyItem(BETANKEY, tr("BETAN(deg)"),
+                                                 PROPERTY_TYPE_DOUBLE, m_betan,
+                                                 0.0, 90.0, 2));
+            //JMACH
+            QString jmachPattern;
+            for(int i = 0, iend = count; i < iend; i++)
+            {
+                jmachPattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
+            }
+            propertyItems.append(getPropertyItem(JMACHKEY, tr("JMACH"),
+                                                 PROPERTY_TYPE_STRING_REG, m_jmach,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, jmachPattern));
+            //PRAT
+            QString pratPattern;
+            for(int i = 0, iend = count; i < iend; i++)
+            {
+                pratPattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
+            }
+            propertyItems.append(getPropertyItem(PRATKEY, tr("PRAT"),
+                                                 PROPERTY_TYPE_STRING_REG, m_prat,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, pratPattern));
+            //TRAT
+            QString tratPattern;
+            for(int i = 0, iend = count; i < iend; i++)
+            {
+                tratPattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
+            }
+            propertyItems.append(getPropertyItem(TRATKEY, tr("TRAT"),
+                                                 PROPERTY_TYPE_STRING_REG, m_trat,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, tratPattern));
+        }
+        //XO
+        RefqTreeItem *refqTreeItem = NULL;
+        for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
+        {
+            refqTreeItem = qobject_cast<RefqTreeItem *>(m_parentItem->child(i));
+            if(refqTreeItem)
+            {
+                break;
+            }
+        }
+        float xcg = refqTreeItem->getXCGValue();
+        propertyItems.append(getPropertyItem(XOKEY, tr("XO"),
+                                             PROPERTY_TYPE_DOUBLE, m_xo,
+                                             0.0, xcg, 2));
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
+
+    return propertyItems;
 }
 
 void GeometryTreeItem::setNewPropertyData(QString objectName, QString value)

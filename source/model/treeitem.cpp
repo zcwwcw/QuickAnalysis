@@ -1,7 +1,7 @@
 #include "treeitem.h"
 
 TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parent)
-    : QObject(parent), m_itemData(data), m_parentItem(parent)
+    : QObject(parent), m_parentItem(parent), m_itemData(data)
 {
 }
 
