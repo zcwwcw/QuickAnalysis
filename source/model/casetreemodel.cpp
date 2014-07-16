@@ -156,7 +156,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> fltconItemData;
     fltconItemData << tr("FLTCON");
-    TreeItem *fltconItem = new FltconTreeItem(fltconItemData, modelItem);
+    FltconTreeItem *fltconItem = new FltconTreeItem(fltconItemData, modelItem);
     connect(fltconItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(fltconItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(fltconItem, fltconItem);
@@ -166,7 +166,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> refqItemData;
     refqItemData << tr("REFQ");
-    TreeItem *refqItem = new RefqTreeItem(refqItemData, modelItem);
+    RefqTreeItem *refqItem = new RefqTreeItem(refqItemData, modelItem);
     connect(refqItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(refqItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(refqItem, refqItem);
@@ -176,7 +176,9 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> geometryItemData;
     geometryItemData << tr("GEOMETRY");
-    TreeItem *geometryItem = new GeometryTreeItem(geometryItemData, modelItem);
+    GeometryTreeItem *geometryItem = new GeometryTreeItem(geometryItemData, modelItem);
+    connect(fltconItem, SIGNAL(nvinfChanged()), geometryItem, SLOT(nmachOrnvinfChanged()));
+    connect(fltconItem, SIGNAL(nmachChanged()), geometryItem, SLOT(nmachOrnvinfChanged()));
     connect(geometryItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(geometryItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(geometryItem, geometryItem);
@@ -186,7 +188,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> protubItemData;
     protubItemData << tr("PROTUB");
-    TreeItem *protubItem = new ProtubTreeItem(protubItemData, modelItem);
+    ProtubTreeItem *protubItem = new ProtubTreeItem(protubItemData, modelItem);
     connect(protubItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(protubItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(protubItem, protubItem);
@@ -196,7 +198,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> finsetItemData;
     finsetItemData << tr("FINSET");
-    TreeItem *finsetItem = new FinsetTreeItem(finsetItemData, modelItem);
+    FinsetTreeItem *finsetItem = new FinsetTreeItem(finsetItemData, modelItem);
     connect(finsetItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(finsetItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(finsetItem, finsetItem);
@@ -206,7 +208,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> deflctItemData;
     deflctItemData << tr("DEFLCT");
-    TreeItem *deflctItem = new DeflctTreeItem(deflctItemData, modelItem);
+    DeflctTreeItem *deflctItem = new DeflctTreeItem(deflctItemData, modelItem);
     connect(deflctItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(deflctItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(deflctItem, deflctItem);
@@ -216,7 +218,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> trimItemData;
     trimItemData << tr("TRIM");
-    TreeItem *trimItem = new TrimTreeItem(trimItemData, modelItem);
+    TrimTreeItem *trimItem = new TrimTreeItem(trimItemData, modelItem);
     connect(trimItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(trimItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(trimItem, trimItem);
@@ -226,7 +228,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> inletItemData;
     inletItemData << tr("INLET");
-    TreeItem *inletItem = new InletTreeItem(inletItemData, modelItem);
+    InletTreeItem *inletItem = new InletTreeItem(inletItemData, modelItem);
     connect(inletItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(inletItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(inletItem, inletItem);
@@ -236,7 +238,7 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
 
     QList<QVariant> solutionItemData;
     solutionItemData << tr("Solution");
-    TreeItem *solutionItem = new SolutionTreeItem(solutionItemData, caseItem);
+    SolutionTreeItem *solutionItem = new SolutionTreeItem(solutionItemData, caseItem);
     connect(solutionItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
     connect(solutionItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
     m_itemMapper1->setMapping(solutionItem, solutionItem);

@@ -164,11 +164,7 @@ QList<QVariant> FltconTreeItem::getProperty() const
     propertyItems.append(getPropertyItem(NALPHAKEY, tr("NALPHA"),
                                          PROPERTY_TYPE_INT, m_nalpha,
                                          2, 20));
-    QString alphaPattern;
-    for(int i = 0, iend = m_nalpha; i < iend; i++)
-    {
-        alphaPattern.append("[-+]?[0-9]\\d{0,1},");
-    }
+    QString alphaPattern = getPattern(NINETY_TO_NEGATIVE_NINETY, m_nalpha);
     propertyItems.append(getPropertyItem(ALPHAKEY, tr("ALPHA(deg)"),
                                          PROPERTY_TYPE_STRING_REG, m_alpha,
                                          0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
@@ -191,11 +187,7 @@ QList<QVariant> FltconTreeItem::getProperty() const
     {
         PropertyItem nmachItem = getPropertyItem(NMACHKEY, tr("NMACH"),
                                                  PROPERTY_TYPE_INT, m_nmach, 2, 20);
-        QString machPattern;
-        for(int i = 0, iend = m_nmach; i < iend; i++)
-        {
-            machPattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
-        }
+        QString machPattern = getPattern(DECIMALS_LOW_HUNDRED_UP_ZERO, m_nmach);
         PropertyItem machValueItem = getPropertyItem(MACHKEY, tr("MACH"),
                                                      PROPERTY_TYPE_STRING_REG, m_mach,
                                                      0, 0, 0, false, Qt::Unchecked,
@@ -208,11 +200,7 @@ QList<QVariant> FltconTreeItem::getProperty() const
     {
         PropertyItem nvinfItem = getPropertyItem(NVINFKEY, tr("NVINF"),
                                                  PROPERTY_TYPE_INT, m_nvinf, 2, 20);
-        QString vinfPattern;
-        for(int i = 0, iend = m_nvinf; i < iend; i++)
-        {
-            vinfPattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
-        }
+        QString vinfPattern = getPattern(DECIMALS_LOW_HUNDRED_UP_ZERO, m_nvinf);
         PropertyItem vinfItem = getPropertyItem(VINFKEY, tr("VINF(L/sec)"),
                                                 PROPERTY_TYPE_STRING_REG, m_vinf,
                                                 0, 0, 0, false, Qt::Unchecked,
@@ -230,11 +218,7 @@ QList<QVariant> FltconTreeItem::getProperty() const
     QList<QVariant> reyChildProperty;
     if(m_reyType == REN)
     {
-        QString renPattern;
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            renPattern.append("\\d+.[0-9]\\d{0,1},");
-        }
+        QString renPattern = getPattern(DECIMALS_NO_LIMIT, count);
         PropertyItem renValueItem = getPropertyItem(RENKEY, tr("REN(1/L)"),
                                                     PROPERTY_TYPE_STRING_REG, m_ren,
                                                     0, 0, 0, false, Qt::Unchecked,
@@ -243,11 +227,7 @@ QList<QVariant> FltconTreeItem::getProperty() const
     }
     else if(m_reyType == ALT)
     {
-        QString altPattern;
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            altPattern.append("\\d+.[0-9]\\d{0,1},");
-        }
+        QString altPattern = getPattern(DECIMALS_NO_LIMIT, count);
         PropertyItem altValueItem = getPropertyItem(ALTKEY, tr("ALT(L)"),
                                                     PROPERTY_TYPE_STRING_REG, m_alt,
                                                     0, 0, 0, false, Qt::Unchecked,
@@ -256,11 +236,7 @@ QList<QVariant> FltconTreeItem::getProperty() const
     }
     else if(m_reyType == PINF_TINF)
     {
-        QString pinf_tinf_Pattern;
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            pinf_tinf_Pattern.append("\\d+.[0-9]\\d{0,1},");
-        }
+        QString pinf_tinf_Pattern = getPattern(DECIMALS_NO_LIMIT, count);
         PropertyItem pinfValueItem = getPropertyItem(PINFKEY, tr("PINF(L*L)"),
                                                      PROPERTY_TYPE_STRING_REG, m_pinf,
                                                      0, 0, 0, false, Qt::Unchecked,
@@ -347,6 +323,7 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
             m_tinf = setNewContent(m_tinf, reyCount, "0.00,");
         }
         emit propertiesUpdate();
+        emit nmachChanged();
     }
     else if(objectName == MACHKEY)
     {
@@ -371,6 +348,7 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
             m_tinf = setNewContent(m_tinf, reyCount, "0.00,");
         }
         emit propertiesUpdate();
+        emit nvinfChanged();
     }
     else if(objectName == VINFKEY)
     {
@@ -388,6 +366,7 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
         {
             reyCount = m_nvinf;
         }
+
         if(m_reyType == REN)
         {
             m_ren = setNewContent(m_ren, reyCount, "0.00,");
@@ -445,30 +424,4 @@ int FltconTreeItem::getNamchOrNvinf() const
         count = m_nvinf;
     }
     return count;
-}
-
-QVariant FltconTreeItem::setNewContent(QVariant oriData, int setCount, QString appendStr)
-{
-    QVariant newData = oriData;
-    QString oriStr = oriData.toString();
-    QStringList oriList = oriStr.split(",", QString::SkipEmptyParts);
-    int valueCount = oriList.size();
-    if(setCount > valueCount)
-    {
-        for(int i = 0, iend = setCount - valueCount; i < iend; i++)
-        {
-            oriStr.append(appendStr);
-        }
-        newData = oriStr;
-    }
-    else if(setCount < valueCount)
-    {
-        oriStr.clear();
-        for(int i = 0, iend = setCount; i < iend; i++)
-        {
-            oriStr = oriStr + oriList[i] + ",";
-        }
-        newData = oriStr;
-    }
-    return newData;
 }

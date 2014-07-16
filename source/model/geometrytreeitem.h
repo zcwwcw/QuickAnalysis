@@ -5,11 +5,10 @@
 #include "treeitem.h"
 #include "casecontent.h"
 #include "propertyconstants.h"
-#include "fltcontreeitem.h"
-#include "refqtreeitem.h"
 
 class GeometryTreeItem : public TreeItem
 {
+    Q_OBJECT
 public:
     enum TnoseType
     {
@@ -56,6 +55,8 @@ public:
     void setNewPropertyData(QString objectName, QString value);
 
     void setNewPropertyCheckState(QString objectName, Qt::CheckState value);
+public slots:
+    void nmachOrnvinfChanged();
 private:
     float m_lnose;
     float m_dnose;
@@ -86,8 +87,8 @@ private:
     float m_xo;
 
     int m_nx;
-    float m_x;
-    float m_r;
+    QVariant m_x;
+    QVariant m_r;
     QVariant m_discon;
 
     float m_wnose;

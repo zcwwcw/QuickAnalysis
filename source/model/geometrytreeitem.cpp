@@ -1,4 +1,6 @@
 #include "geometrytreeitem.h"
+#include "fltcontreeitem.h"
+#include "refqtreeitem.h"
 
 const QLatin1String AXIBODKEY("AXIBOD");
 const QLatin1String ELLBODKEY("ELLBOD");
@@ -34,6 +36,7 @@ const QLatin1String WKEY("W");
 const QLatin1String HKEY("H");
 const QLatin1String ELLIPKEY("ELLIP");
 const QLatin1String HEADTYPEKEY("HEADTYPE");
+const QLatin1String ELLIPSETYPEKEY("ELLIPSETYPEKEY");
 
 const QList<QVariant> TnoseList(QList<QVariant>() << QVariant(QObject::tr("CONICAL"))
                                 << QVariant(QObject::tr("OGVIE")) << QVariant(QObject::tr("POWER"))
@@ -45,12 +48,17 @@ const QList<QVariant> HeadTypeList(QList<QVariant>() << QVariant(QObject::tr("PA
 const QList<QVariant> TaftList(QList<QVariant>() << QVariant(QObject::tr("CONICAL(CONE)"))
                                << QVariant(QObject::tr("OGVIE")));
 
+const QList<QVariant> EllipseList(QList<QVariant>() << QVariant(QObject::tr("W and H"))
+                                  << QVariant(QObject::tr("W and ELLIP"))
+                                  << QVariant(QObject::tr("H and ELLIP")));
+
+
 GeometryTreeItem::GeometryTreeItem(const QList<QVariant> &data, TreeItem *parent)
     :TreeItem(data, parent), m_lnose(0.0), m_dnose(0.0), m_tnose(TNOSE_OGVIE),
       m_power(0.0), m_headType(PASSIVATE), m_bnose(0.0),
       m_lcentr(0.0), m_dcentr(0.0), m_laft(0.0), m_daft(0.01), m_taft(TAFT_CONICAL),
       m_dexit(0.0), m_base(false), m_betan(0.0), m_xoCheck(Qt::Unchecked), m_xo(0.0),
-      m_nx(0), m_x(0.0), m_r(0.0), m_wnose(1.0), m_enose(1.0), m_wcentr(1.0), m_ecentr(1.0),
+      m_nx(0), m_wnose(1.0), m_enose(1.0), m_wcentr(1.0), m_ecentr(1.0),
       m_waft(0.01), m_eaft(1.0), m_ellipseType(W_H), m_type(AXIBOD)
 {
 }
@@ -246,13 +254,25 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             if(axibodContent.find(XKEY) != axibodContent.end())
             {
                 QString xValue = axibodContent.value(XKEY).value.toString();
-                m_x = xValue.toFloat();
+                QStringList xList = xValue.split(",");
+                QString xStr;
+                for(int i = 0, iend = xList.size(); i < iend; i++)
+                {
+                    xStr = xStr + QString::number(xList[i].toFloat(), 'f', 2) + ",";
+                }
+                m_x = xStr;
             }
             //R
             if(axibodContent.find(RKEY) != axibodContent.end())
             {
                 QString rValue = axibodContent.value(RKEY).value.toString();
-                m_r = rValue.toFloat();
+                QStringList rList = rValue.split(",");
+                QString rStr;
+                for(int i = 0, iend = rList.size(); i < iend; i++)
+                {
+                    rStr = rStr + QString::number(rList[i].toFloat(), 'f', 2) + ",";
+                }
+                m_r = rStr;
             }
             //DISCON
             if(axibodContent.find(DISCONKEY) != axibodContent.end())
@@ -414,7 +434,13 @@ void GeometryTreeItem::setContent(const CaseContent &caseContent)
             if(ellbodContent.find(XKEY) != ellbodContent.end())
             {
                 QString xValue = ellbodContent.value(XKEY).value.toString();
-                m_x = xValue.toFloat();
+                QStringList xList = xValue.split(",");
+                QString xStr;
+                for(int i = 0, iend = xList.size(); i < iend; i++)
+                {
+                    xStr = xStr + QString::number(xList[i].toFloat(), 'f', 2) + ",";
+                }
+                m_x = xStr;
             }
             //ELLIPSE --- W AND H
             if(ellbodContent.find(WKEY) != ellbodContent.end() && ellbodContent.find(HKEY) != ellbodContent.end())
@@ -538,6 +564,7 @@ QList<QVariant> GeometryTreeItem::getProperty() const
                                                  PROPERTY_TYPE_ENUM, m_tnose,
                                                  0, 0, 0, false, Qt::Unchecked, TnoseList));
         }
+
         //HEADTYPE
         propertyItems.append(getPropertyItem(HEADTYPEKEY, tr("HEADTYPE"),
                                              PROPERTY_TYPE_ENUM, m_headType,
@@ -575,7 +602,7 @@ QList<QVariant> GeometryTreeItem::getProperty() const
                                              PROPERTY_TYPE_BOOL, m_base));
 
         //BETAN-JMACH-PRAT-TRAT
-        if(m_base && m_dexit - 0.0 < 0.0001)
+        if(m_base && qFuzzyCompare(m_dexit, 0.0f))
         {
             FltconTreeItem *fltConTreeItem = NULL;
             for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
@@ -635,11 +662,278 @@ QList<QVariant> GeometryTreeItem::getProperty() const
         float xcg = refqTreeItem->getXCGValue();
         propertyItems.append(getPropertyItem(XOKEY, tr("XO"),
                                              PROPERTY_TYPE_DOUBLE, m_xo,
+                                             0.0, xcg, 2, true, m_xoCheck, QList<QVariant>(),
+                                             true));
+        break;
+    }
+    case AXIBOD_NX:
+    {
+        //NX
+        propertyItems.append(getPropertyItem(NXKEY, tr("NX"), PROPERTY_TYPE_INT,
+                                             m_nx, 2, 50, 0));
+
+        //X
+        QString xPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+        propertyItems.append(getPropertyItem(XKEY, tr("X(L)"),
+                                             PROPERTY_TYPE_STRING_REG, m_x,
+                                             0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                             true, xPattern));
+        //R
+        QString rPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+        propertyItems.append(getPropertyItem(RKEY, tr("R(L)"),
+                                             PROPERTY_TYPE_STRING_REG, m_r,
+                                             0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                             true, rPattern));
+
+        //DISCON
+        QString disconPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+        propertyItems.append(getPropertyItem(DISCONKEY, tr("Discon"),
+                                             PROPERTY_TYPE_STRING_REG, m_discon,
+                                             0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                             true, disconPattern));
+
+        //HEADTYPE
+        propertyItems.append(getPropertyItem(HEADTYPEKEY, tr("HEADTYPE"),
+                                             PROPERTY_TYPE_ENUM, m_headType,
+                                             0, 0, 0, false, Qt::Unchecked, HeadTypeList));
+        //BNOSE
+        propertyItems.append(getPropertyItem(BNOSEKEY, tr("BNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_bnose,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //DEXIT
+        propertyItems.append(getPropertyItem(DEXITKEY, tr("DEXIT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_dexit,
+                                             0.0, m_daft, 2));
+
+        //XO
+        RefqTreeItem *refqTreeItem = NULL;
+        for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
+        {
+            refqTreeItem = qobject_cast<RefqTreeItem *>(m_parentItem->child(i));
+            if(refqTreeItem)
+            {
+                break;
+            }
+        }
+        float xcg = refqTreeItem->getXCGValue();
+        propertyItems.append(getPropertyItem(XOKEY, tr("XO"),
+                                             PROPERTY_TYPE_DOUBLE, m_xo,
                                              0.0, xcg, 2));
         break;
     }
-    default:
+    case ELLBOD:
     {
+        //LNOSE
+        propertyItems.append(getPropertyItem(LNOSEKEY, tr("LNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_lnose,
+                                             0.0, INFINITYNUMBER, 2));
+        //WNOSE
+        propertyItems.append(getPropertyItem(WNOSEKEY, tr("WNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_wnose,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //ENOSE
+        propertyItems.append(getPropertyItem(ENOSEKEY, tr("ENOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_enose,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //TNOSE
+        if(m_tnose == TNOSE_POWER)
+        {
+            PropertyItem tnoseGroupItem = getPropertyItem(TNOSEKEY, tr("TNOSE"),
+                                                          PROPERTY_TYPE_ENUM_GROUP, m_tnose,
+                                                          0, 0, 0, false, Qt::Unchecked, TnoseList);
+            QList<QVariant> tnoseChildProperty;
+            //POWER
+            PropertyItem powerItem = getPropertyItem(POWERKEY, tr("POWER"),
+                                                     PROPERTY_TYPE_DOUBLE, m_power, 0.0,
+                                                     1.0, 2);
+            tnoseChildProperty.append(powerItem);
+
+            tnoseGroupItem.insert(PropertyConstants::CHILD_PROPERTY, tnoseChildProperty);
+            propertyItems.append(tnoseGroupItem);
+        }
+        else
+        {
+            propertyItems.append(getPropertyItem(TNOSEKEY, tr("TNOSE"),
+                                                 PROPERTY_TYPE_ENUM, m_tnose,
+                                                 0, 0, 0, false, Qt::Unchecked, TnoseList));
+        }
+
+        //HEADTYPE
+        propertyItems.append(getPropertyItem(HEADTYPEKEY, tr("HEADTYPE"),
+                                             PROPERTY_TYPE_ENUM, m_headType,
+                                             0, 0, 0, false, Qt::Unchecked, HeadTypeList));
+        //BNOSE
+        propertyItems.append(getPropertyItem(BNOSEKEY, tr("BNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_bnose,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //LCENTR
+        propertyItems.append(getPropertyItem(LCENTRKEY, tr("LCENTR(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_lcentr,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //WCENTR
+        propertyItems.append(getPropertyItem(WCENTRKEY, tr("WCENTR(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_wcentr,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //ECENTR
+        propertyItems.append(getPropertyItem(ECENTRKEY, tr("ECENTR(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_ecentr,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //LAFT
+        propertyItems.append(getPropertyItem(LAFTKEY, tr("LAFT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_laft,
+                                             0.0, INFINITYNUMBER, 2));
+        //WAFT
+        propertyItems.append(getPropertyItem(WAFTKEY, tr("WAFT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_waft,
+                                             0.0, INFINITYNUMBER, 2));
+        //EAFT
+        propertyItems.append(getPropertyItem(EAFTKEY, tr("EAFT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_eaft,
+                                             0.0, INFINITYNUMBER, 2));
+        //TAFT
+        propertyItems.append(getPropertyItem(TAFTKEY, tr("TAFT"),
+                                             PROPERTY_TYPE_ENUM, m_taft,
+                                             0, 0, 0, true, m_taftCheck, TaftList));
+
+        //DEXIT
+        propertyItems.append(getPropertyItem(DEXITKEY, tr("DEXIT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_dexit,
+                                             0.0, m_daft, 2));
+
+        //XO
+        RefqTreeItem *refqTreeItem = NULL;
+        for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
+        {
+            refqTreeItem = qobject_cast<RefqTreeItem *>(m_parentItem->child(i));
+            if(refqTreeItem)
+            {
+                break;
+            }
+        }
+        float xcg = refqTreeItem->getXCGValue();
+        propertyItems.append(getPropertyItem(XOKEY, tr("XO"),
+                                             PROPERTY_TYPE_DOUBLE, m_xo,
+                                             0.0, xcg, 2, true, m_xoCheck, QList<QVariant>(),
+                                             true));
+        break;
+    }
+    case ELLBOD_NX:
+    {
+        //NX
+        propertyItems.append(getPropertyItem(NXKEY, tr("NX"), PROPERTY_TYPE_INT,
+                                             m_nx, 2, 50, 0));
+
+        //X
+        QString xPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+        propertyItems.append(getPropertyItem(XKEY, tr("X(L)"),
+                                             PROPERTY_TYPE_STRING_REG, m_x,
+                                             0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                             true, xPattern));
+
+        //H_W_ELLIP
+        PropertyItem ellipseGroupItem = getPropertyItem(ELLIPSETYPEKEY, tr("ELLIPSE TYPE"),
+                                                        PROPERTY_TYPE_ENUM_GROUP, m_ellipseType,
+                                                        0, 0, 0, false, Qt::Unchecked, EllipseList);
+        QList<QVariant> ellipseChildProperty;
+        switch(m_ellipseType)
+        {
+        case W_H:
+        {
+            QString hPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+            PropertyItem hItem = getPropertyItem(HKEY, tr("H(L)"),
+                                                 PROPERTY_TYPE_STRING_REG, m_h,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, hPattern);
+
+            QString wPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+            PropertyItem wItem = getPropertyItem(WKEY, tr("W(L)"),
+                                                 PROPERTY_TYPE_STRING_REG, m_w,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, wPattern);
+
+            ellipseChildProperty.append(hItem);
+            ellipseChildProperty.append(wItem);
+            break;
+        }
+        case W_ELLIP:
+        {
+            QString wPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+            PropertyItem wItem = getPropertyItem(WKEY, tr("W(L)"),
+                                                 PROPERTY_TYPE_STRING_REG, m_w,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, wPattern);
+
+            QString ellipsePattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+            PropertyItem ellipseItem = getPropertyItem(ELLIPKEY, tr("ELLIP"),
+                                                       PROPERTY_TYPE_STRING_REG, m_ellip,
+                                                       0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                       true, ellipsePattern);
+            ellipseChildProperty.append(wItem);
+            ellipseChildProperty.append(ellipseItem);
+            break;
+        }
+        case H_ELLIP:
+        {
+            QString hPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+            PropertyItem hItem = getPropertyItem(HKEY, tr("H(L)"),
+                                                 PROPERTY_TYPE_STRING_REG, m_h,
+                                                 0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                 true, hPattern);
+            QString ellipsePattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+            PropertyItem ellipseItem = getPropertyItem(ELLIPKEY, tr("ELLIP"),
+                                                       PROPERTY_TYPE_STRING_REG, m_ellip,
+                                                       0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                                       true, ellipsePattern);
+            ellipseChildProperty.append(hItem);
+            ellipseChildProperty.append(ellipseItem);
+            break;
+        }
+        }
+        ellipseGroupItem.insert(PropertyConstants::CHILD_PROPERTY, ellipseChildProperty);
+        propertyItems.append(ellipseGroupItem);
+
+        //DISCON
+        QString disconPattern = getPattern(DECIMALS_INFINITE_TO_ZERO, m_nx);
+        propertyItems.append(getPropertyItem(DISCONKEY, tr("Discon"),
+                                             PROPERTY_TYPE_STRING_REG, m_discon,
+                                             0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
+                                             true, disconPattern));
+
+        //HEADTYPE
+        propertyItems.append(getPropertyItem(HEADTYPEKEY, tr("HEADTYPE"),
+                                             PROPERTY_TYPE_ENUM, m_headType,
+                                             0, 0, 0, false, Qt::Unchecked, HeadTypeList));
+        //BNOSE
+        propertyItems.append(getPropertyItem(BNOSEKEY, tr("BNOSE(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_bnose,
+                                             0.0, INFINITYNUMBER, 2));
+
+        //DEXIT
+        propertyItems.append(getPropertyItem(DEXITKEY, tr("DEXIT(L)"),
+                                             PROPERTY_TYPE_DOUBLE, m_dexit,
+                                             0.0, m_daft, 2));
+
+        //XO
+        RefqTreeItem *refqTreeItem = NULL;
+        for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
+        {
+            refqTreeItem = qobject_cast<RefqTreeItem *>(m_parentItem->child(i));
+            if(refqTreeItem)
+            {
+                break;
+            }
+        }
+        float xcg = refqTreeItem->getXCGValue();
+        propertyItems.append(getPropertyItem(XOKEY, tr("XO"),
+                                             PROPERTY_TYPE_DOUBLE, m_xo,
+                                             0.0, xcg, 2));
         break;
     }
     }
@@ -649,8 +943,161 @@ QList<QVariant> GeometryTreeItem::getProperty() const
 
 void GeometryTreeItem::setNewPropertyData(QString objectName, QString value)
 {
+    if(objectName == LNOSEKEY)
+    {
+        m_lnose = value.toFloat();
+    }
+    else if(objectName == DNOSEKEY)
+    {
+        m_dnose = value.toFloat();
+    }
+    else if(objectName == TNOSEKEY)
+    {
+        m_tnose = TnoseType(TnoseList.indexOf(value));
+        emit propertiesRebuild();
+    }
+    else if(objectName == POWERKEY)
+    {
+        m_power = value.toFloat();
+    }
+    else if(objectName == HEADTYPEKEY)
+    {
+        m_headType = HeadType(HeadTypeList.indexOf(value));
+    }
+    else if(objectName == BNOSEKEY)
+    {
+        m_bnose = value.toFloat();
+    }
+    else if(objectName == LCENTRKEY)
+    {
+        m_lcentr = value.toFloat();
+    }
+    else if(objectName == DCENTRKEY)
+    {
+        m_dcentr = value.toFloat();
+    }
+    else if(objectName == LAFTKEY)
+    {
+        m_laft = value.toFloat();
+    }
+    else if(objectName == DAFTKEY)
+    {
+        m_daft = value.toFloat();
+    }
+    else if(objectName == TAFTKEY)
+    {
+        m_taft = TaftType(TaftList.indexOf(value));
+    }
+    else if(objectName == DEXITKEY)
+    {
+        m_dexit = value.toFloat();
+    }
+    else if(objectName == BASEKEY)
+    {
+        m_base = getBoolValue(value);
+    }
+    else if(objectName == BETANKEY)
+    {
+        m_betan = value.toFloat();
+    }
+    else if(objectName == JMACHKEY)
+    {
+        m_jmach = value;
+    }
+    else if(objectName == PRATKEY)
+    {
+        m_prat = value;
+    }
+    else if(objectName == TRATKEY)
+    {
+        m_trat = value;
+    }
+    else if(objectName == XOKEY)
+    {
+        m_xo = value.toFloat();
+    }
+    else if(objectName == NXKEY)
+    {
+        m_nx = value.toInt();
+        m_x = setNewContent(m_x, m_nx, "0.00,");
+        m_r = setNewContent(m_r, m_nx, "0.00,");
+        m_h = setNewContent(m_h, m_nx, "0.00,");
+        m_w = setNewContent(m_w, m_nx, "0.00,");
+        m_ellip = setNewContent(m_ellip, m_nx, "0.00,");
+        emit propertiesUpdate();
+    }
+    else if(objectName == XKEY)
+    {
+        m_x = value;
+    }
+    else if(objectName == RKEY)
+    {
+        m_r = value;
+    }
+    else if(objectName == DISCONKEY)
+    {
+        m_discon = value;
+    }
+    else if(objectName == WNOSEKEY)
+    {
+        m_wnose = value.toFloat();
+    }
+    else if(objectName == ENOSEKEY)
+    {
+        m_enose = value.toFloat();
+    }
+    else if(objectName == WCENTRKEY)
+    {
+        m_wcentr = value.toFloat();
+    }
+    else if(objectName == ECENTRKEY)
+    {
+        m_ecentr = value.toFloat();
+    }
+    else if(objectName == WAFTKEY)
+    {
+        m_waft = value.toFloat();
+    }
+    else if(objectName == EAFTKEY)
+    {
+        m_eaft = value.toFloat();
+    }
+    else if(objectName == ELLIPSETYPEKEY)
+    {
+        m_ellipseType = EllipseType(EllipseList.indexOf(value));
+        m_h = setNewContent(m_h, m_nx, "0.00,");
+        m_w = setNewContent(m_w, m_nx, "0.00,");
+        m_ellip = setNewContent(m_ellip, m_nx, "0.00,");
+        emit propertiesRebuild();
+    }
 }
 
 void GeometryTreeItem::setNewPropertyCheckState(QString objectName, Qt::CheckState value)
 {
+    if(objectName == TAFTKEY)
+    {
+        m_taftCheck = value;
+    }
+    else if(objectName == XOKEY)
+    {
+        m_xoCheck = value;
+    }
+}
+
+void GeometryTreeItem::nmachOrnvinfChanged()
+{
+    FltconTreeItem *fltConTreeItem = NULL;
+    for(int i = 0, iend = m_parentItem->childCount(); i < iend; i++)
+    {
+        fltConTreeItem = qobject_cast<FltconTreeItem *>(m_parentItem->child(i));
+        if(fltConTreeItem)
+        {
+            break;
+        }
+    }
+    int count = fltConTreeItem->getNamchOrNvinf();
+
+    m_jmach = setNewContent(m_jmach, count, "0.00,");
+    m_prat = setNewContent(m_prat, count, "0.00,");
+    m_trat = setNewContent(m_trat, count, "0.00,");
 }

@@ -75,4 +75,91 @@ inline PropertyItem getPropertyItem(const QString &name,
     return property;
 }
 
+enum PatternType
+{
+    NINETY_TO_NEGATIVE_NINETY,
+    DECIMALS_LOW_HUNDRED_UP_ZERO,
+    DECIMALS_INFINITE_TO_ZERO,
+    DECIMALS_NO_LIMIT
+};
+
+inline QString getPattern(const PatternType &type, const int &count)
+{
+    QString pattern;
+    switch(type)
+    {
+    case NINETY_TO_NEGATIVE_NINETY:
+    {
+        for(int i = 0, iend = count; i < iend; i++)
+        {
+            pattern.append("[-+]?[0-9]\\d{0,1},");
+        }
+        break;
+    }
+    case DECIMALS_LOW_HUNDRED_UP_ZERO:
+    {
+        for(int i = 0, iend = count; i < iend; i++)
+        {
+            pattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
+        }
+        break;
+    }
+    case DECIMALS_INFINITE_TO_ZERO:
+    {
+        for(int i = 0, iend = count; i < iend; i++)
+        {
+            pattern.append("[0-9]\\d{0,9}.[0-9]\\d{0,1},");
+        }
+        break;
+    }
+    case DECIMALS_NO_LIMIT:
+    {
+        for(int i = 0, iend = count; i < iend; i++)
+        {
+            pattern.append("\\d+.[0-9]\\d{0,1},");
+        }
+        break;
+    }
+    }
+    return pattern;
+}
+
+inline QVariant setNewContent(QVariant oriData, int setCount, QString appendStr)
+{
+    QVariant newData = oriData;
+    QString oriStr = oriData.toString();
+    QStringList oriList = oriStr.split(",", QString::SkipEmptyParts);
+    int valueCount = oriList.size();
+    if(setCount > valueCount)
+    {
+        for(int i = 0, iend = setCount - valueCount; i < iend; i++)
+        {
+            oriStr.append(appendStr);
+        }
+        newData = oriStr;
+    }
+    else if(setCount < valueCount)
+    {
+        oriStr.clear();
+        for(int i = 0, iend = setCount; i < iend; i++)
+        {
+            oriStr = oriStr + oriList[i] + ",";
+        }
+        newData = oriStr;
+    }
+    return newData;
+}
+
+inline bool getBoolValue(const QString value)
+{
+    if(value == "True")
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 #endif // PROPERTYCONSTANTS_H

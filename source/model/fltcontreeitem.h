@@ -37,8 +37,10 @@ public:
     void setNewPropertyCheckState(QString objectName, Qt::CheckState value);
 
     int getNamchOrNvinf() const;
-private:
-    QVariant setNewContent(QVariant oriData, int setCount, QString appendStr);
+signals:
+    void nmachChanged();
+
+    void nvinfChanged();
 private:
     int m_nalpha;
     QVariant m_alpha;
