@@ -29,83 +29,79 @@ RefqTreeItem::RefqTreeItem(const QList<QVariant> &data, TreeItem *parent)
 
 void RefqTreeItem::setContent(const CaseContent &caseContent)
 {
-    QHash<QString, CaseContent>::const_iterator iter;
-    for(iter = caseContent.childContent.begin();iter != caseContent.childContent.end(); iter++)
+    QHash<QString, CaseContent> childContent = caseContent.childContent;
+    if(childContent.find(REFQKEY) != childContent.end())
     {
-        QHash<QString, CaseContent> childContent = caseContent.childContent;
-        if(childContent.find(REFQKEY) != childContent.end())
+        QHash<QString, CaseContent> refqContent = childContent.value(REFQKEY).childContent;
+        //XCG
+        if(refqContent.find(XCGKEY) != refqContent.end())
         {
-            QHash<QString, CaseContent> refqContent = childContent.value(REFQKEY).childContent;
-            //XCG
-            if(refqContent.find(XCGKEY) != refqContent.end())
+            QString xvgValue = refqContent.value(XCGKEY).value.toString();
+            m_xcg = xvgValue.toFloat();
+        }
+        //ZCG
+        if(refqContent.find(ZCGKEY) != refqContent.end())
+        {
+            QString zcgValue = refqContent.value(ZCGKEY).value.toString();
+            m_zcg = zcgValue.toFloat();
+        }
+        //SREF
+        if(refqContent.find(SREFKEY) != refqContent.end())
+        {
+            QString srefValue = refqContent.value(SREFKEY).value.toString();
+            m_srefCheck = Qt::Checked;
+            m_sref = srefValue.toFloat();
+        }
+        //LREF
+        if(refqContent.find(LREFKEY) != refqContent.end())
+        {
+            QString lrefValue = refqContent.value(LREFKEY).value.toString();
+            m_lref = Qt::Checked;
+            m_lref = lrefValue.toFloat();
+        }
+        //LATREF
+        if(refqContent.find(LATREFKEY) != refqContent.end())
+        {
+            QString latrefValue = refqContent.value(LATREFKEY).value.toString();
+            m_latrefCheck = Qt::Checked;
+            m_latref = latrefValue.toFloat();
+        }
+        //BLAYER
+        if(refqContent.find(BLAYERKEY) != refqContent.end())
+        {
+            QString blayerValue = refqContent.value(BLAYERKEY).value.toString();
+            if(blayerValue == "TURB")
             {
-                QString xvgValue = refqContent.value(XCGKEY).value.toString();
-                m_xcg = xvgValue.toFloat();
+                m_blayer = TURB;
             }
-            //ZCG
-            if(refqContent.find(ZCGKEY) != refqContent.end())
+            else if(blayerValue == "NATURAL")
             {
-                QString zcgValue = refqContent.value(ZCGKEY).value.toString();
-                m_zcg = zcgValue.toFloat();
+                m_blayer = NATURAL;
             }
-            //SREF
-            if(refqContent.find(SREFKEY) != refqContent.end())
-            {
-                QString srefValue = refqContent.value(SREFKEY).value.toString();
-                m_srefCheck = Qt::Checked;
-                m_sref = srefValue.toFloat();
-            }
-            //LREF
-            if(refqContent.find(LREFKEY) != refqContent.end())
-            {
-                QString lrefValue = refqContent.value(LREFKEY).value.toString();
-                m_lref = Qt::Checked;
-                m_lref = lrefValue.toFloat();
-            }
-            //LATREF
-            if(refqContent.find(LATREFKEY) != refqContent.end())
-            {
-                QString latrefValue = refqContent.value(LATREFKEY).value.toString();
-                m_latrefCheck = Qt::Checked;
-                m_latref = latrefValue.toFloat();
-            }
-            //BLAYER
-            if(refqContent.find(BLAYERKEY) != refqContent.end())
-            {
-                QString blayerValue = refqContent.value(BLAYERKEY).value.toString();
-                if(blayerValue == "TURB")
-                {
-                    m_blayer = TURB;
-                }
-                else if(blayerValue == "NATURAL")
-                {
-                    m_blayer = NATURAL;
-                }
-                m_blayerCheck = Qt::Checked;
-            }
-            //ROUGH
-            if(refqContent.find(ROUGHKEY) != refqContent.end())
-            {
-                QString roughValue = refqContent.value(ROUGHKEY).value.toString();
-                m_rough = roughValue.toFloat();
-                m_roughCheck = Qt::Checked;
-                m_crude = ROUGH;
-            }
-            //RHR
-            if(refqContent.find(RHRKEY) != refqContent.end())
-            {
-                QString rhrValue = refqContent.value(RHRKEY).value.toString();
-                m_rhr = rhrValue.toFloat();
-                m_rhrCheck = Qt::Checked;
-                m_crude = RHR;
-            }
-            //SCALE
-            if(refqContent.find(SCALEKEY) != refqContent.end())
-            {
-                QString scaleValue = refqContent.value(SCALEKEY).value.toString();
-                m_scale = scaleValue.toFloat();
-                m_scaleCheck = Qt::Checked;
-            }
+            m_blayerCheck = Qt::Checked;
+        }
+        //ROUGH
+        if(refqContent.find(ROUGHKEY) != refqContent.end())
+        {
+            QString roughValue = refqContent.value(ROUGHKEY).value.toString();
+            m_rough = roughValue.toFloat();
+            m_roughCheck = Qt::Checked;
+            m_crude = ROUGH;
+        }
+        //RHR
+        if(refqContent.find(RHRKEY) != refqContent.end())
+        {
+            QString rhrValue = refqContent.value(RHRKEY).value.toString();
+            m_rhr = rhrValue.toFloat();
+            m_rhrCheck = Qt::Checked;
+            m_crude = RHR;
+        }
+        //SCALE
+        if(refqContent.find(SCALEKEY) != refqContent.end())
+        {
+            QString scaleValue = refqContent.value(SCALEKEY).value.toString();
+            m_scale = scaleValue.toFloat();
+            m_scaleCheck = Qt::Checked;
         }
     }
 }

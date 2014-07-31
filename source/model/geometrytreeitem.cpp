@@ -65,464 +65,460 @@ GeometryTreeItem::GeometryTreeItem(const QList<QVariant> &data, TreeItem *parent
 
 void GeometryTreeItem::setContent(const CaseContent &caseContent)
 {
-    QHash<QString, CaseContent>::const_iterator iter;
-    for(iter = caseContent.childContent.begin();iter != caseContent.childContent.end(); iter++)
+    QHash<QString, CaseContent> childContent = caseContent.childContent;
+    if(childContent.find(AXIBODKEY) != childContent.end())
     {
-        QHash<QString, CaseContent> childContent = caseContent.childContent;
-        if(childContent.find(AXIBODKEY) != childContent.end())
+        m_type = AXIBOD;
+        QHash<QString, CaseContent> axibodContent = childContent.value(AXIBODKEY).childContent;
+        //LNOSE
+        if(axibodContent.find(LNOSEKEY) != axibodContent.end())
         {
-            m_type = AXIBOD;
-            QHash<QString, CaseContent> axibodContent = childContent.value(AXIBODKEY).childContent;
-            //LNOSE
-            if(axibodContent.find(LNOSEKEY) != axibodContent.end())
+            QString lnoseValue = axibodContent.value(LNOSEKEY).value.toString();
+            m_lnose = lnoseValue.toFloat();
+        }
+        //DNOSE
+        if(axibodContent.find(DNOSEKEY) != axibodContent.end())
+        {
+            QString dnoseValue = axibodContent.value(DNOSEKEY).value.toString();
+            m_dnose = dnoseValue.toFloat();
+        }
+        //TNOSE
+        if(axibodContent.find(TNOSEKEY) != axibodContent.end())
+        {
+            QString tnoseValue = axibodContent.value(TNOSEKEY).value.toString();
+            if(tnoseValue == "CONICAL")
             {
-                QString lnoseValue = axibodContent.value(LNOSEKEY).value.toString();
-                m_lnose = lnoseValue.toFloat();
+                m_tnose = TNOSE_CONICAL;
             }
-            //DNOSE
-            if(axibodContent.find(DNOSEKEY) != axibodContent.end())
+            else if(tnoseValue == "OGVIE")
             {
-                QString dnoseValue = axibodContent.value(DNOSEKEY).value.toString();
-                m_dnose = dnoseValue.toFloat();
+                m_tnose = TNOSE_OGVIE;
             }
-            //TNOSE
-            if(axibodContent.find(TNOSEKEY) != axibodContent.end())
+            else if(tnoseValue == "POWER")
             {
-                QString tnoseValue = axibodContent.value(TNOSEKEY).value.toString();
-                if(tnoseValue == "CONICAL")
-                {
-                    m_tnose = TNOSE_CONICAL;
-                }
-                else if(tnoseValue == "OGVIE")
-                {
-                    m_tnose = TNOSE_OGVIE;
-                }
-                else if(tnoseValue == "POWER")
-                {
-                    m_tnose = TNOSE_POWER;
-                }
-                else if(tnoseValue == "HAACK")
-                {
-                    m_tnose = TNOSE_HAACK;
-                }
-                else if(tnoseValue == "KARMAN")
-                {
-                    m_tnose = TNOSE_KARMAN;
-                }
+                m_tnose = TNOSE_POWER;
             }
-            //POWER
-            if(axibodContent.find(POWERKEY) != axibodContent.end())
+            else if(tnoseValue == "HAACK")
             {
-                QString powerValue = axibodContent.value(POWERKEY).value.toString();
-                m_power = powerValue.toFloat();
+                m_tnose = TNOSE_HAACK;
             }
-            //TRUNC
-            if(axibodContent.find(TRUNCKEY) != axibodContent.end())
+            else if(tnoseValue == "KARMAN")
             {
-                QString truncValue = axibodContent.value(TRUNCKEY).value.toString();
-                if(truncValue == "TRUE")
-                {
-                    m_headType = TRUNCATE;
-                }
-                else if(truncValue == "FALSE")
-                {
-                    m_headType = PASSIVATE;
-                }
-            }
-            //BNOSE
-            if(axibodContent.find(BNOSEKEY) != axibodContent.end())
-            {
-                QString bnoseValue = axibodContent.value(BNOSEKEY).value.toString();
-                m_bnose = bnoseValue.toFloat();
-            }
-            //LCENTR
-            if(axibodContent.find(LCENTRKEY) != axibodContent.end())
-            {
-                QString lcentrValue = axibodContent.value(LCENTRKEY).value.toString();
-                m_lcentr = lcentrValue.toFloat();
-            }
-            //DCENTR
-            if(axibodContent.find(DCENTRKEY) != axibodContent.end())
-            {
-                QString dcentrValue = axibodContent.value(DCENTRKEY).value.toString();
-                m_dcentr = dcentrValue.toFloat();
-            }
-            //LAFT
-            if(axibodContent.find(LAFTKEY) != axibodContent.end())
-            {
-                QString laftValue = axibodContent.value(LAFTKEY).value.toString();
-                m_laft = laftValue.toFloat();
-            }
-            //DAFT
-            if(axibodContent.find(DAFTKEY) != axibodContent.end())
-            {
-                QString daftValue = axibodContent.value(DAFTKEY).value.toString();
-                m_daft = daftValue.toFloat();
-            }
-            //TAFT
-            if(axibodContent.find(TAFTKEY) != axibodContent.end())
-            {
-                QString taftValue = axibodContent.value(TAFTKEY).value.toString();
-                if(taftValue == "CONICAL")
-                {
-                    m_taft = TAFT_CONICAL;
-                }
-                else if(taftValue == "OGVIE")
-                {
-                    m_taft = TAFT_OGVIE;
-                }
-                m_taftCheck = Qt::Checked;
-            }
-            //DEXIT
-            if(axibodContent.find(DEXITKEY) != axibodContent.end())
-            {
-                QString dexitValue = axibodContent.value(DEXITKEY).value.toString();
-                m_dexit = dexitValue.toFloat();
-            }
-            //BASE
-            if(axibodContent.find(BASEKEY) != axibodContent.end())
-            {
-                QString baseValue = axibodContent.value(BASEKEY).value.toString();
-                if(baseValue == "TRUE")
-                {
-                    m_base = true;
-                }
-                else if(baseValue == "FALSE")
-                {
-                    m_base = false;
-                }
-            }
-            //BETAN
-            if(axibodContent.find(BETANKEY) != axibodContent.end())
-            {
-                QString betanValue = axibodContent.value(BETANKEY).value.toString();
-                m_betan = betanValue.toFloat();
-            }
-            //JMACH
-            if(axibodContent.find(JMACHKEY) != axibodContent.end())
-            {
-                QString jmachValue = axibodContent.value(JMACHKEY).value.toString();
-                QStringList jmachList = jmachValue.split(",");
-                QString jmachStr;
-                for(int i = 0, iend = jmachList.size(); i < iend; i++)
-                {
-                    jmachStr = jmachStr + QString::number(jmachList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_jmach = jmachStr;
-            }
-            //PRAT
-            if(axibodContent.find(PRATKEY) != axibodContent.end())
-            {
-                QString pratValue = axibodContent.value(PRATKEY).value.toString();
-                QStringList pratList = pratValue.split(",");
-                QString pratStr;
-                for(int i = 0, iend = pratList.size(); i < iend; i++)
-                {
-                    pratStr = pratStr + QString::number(pratList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_prat = pratStr;
-            }
-            //TRAT
-            if(axibodContent.find(TRATKEY) != axibodContent.end())
-            {
-                QString tratValue = axibodContent.value(TRATKEY).value.toString();
-                QStringList tratList = tratValue.split(",");
-                QString tratStr;
-                for(int i = 0, iend = tratList.size(); i < iend; i++)
-                {
-                    tratStr = tratStr + QString::number(tratList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_trat = tratStr;
-            }
-            //XO
-            if(axibodContent.find(XOKEY) != axibodContent.end())
-            {
-                QString xoValue = axibodContent.value(XOKEY).value.toString();
-                m_xo = xoValue.toFloat();
-                m_xoCheck = Qt::Checked;
-            }
-
-            /////////////////////////////////////////////////////////////////////////
-            //NX
-            if(axibodContent.find(NXKEY) != axibodContent.end())
-            {
-                QString nxValue = axibodContent.value(NXKEY).value.toString();
-                m_nx = nxValue.toInt();
-                m_type = AXIBOD_NX;
-            }
-            //X
-            if(axibodContent.find(XKEY) != axibodContent.end())
-            {
-                QString xValue = axibodContent.value(XKEY).value.toString();
-                QStringList xList = xValue.split(",");
-                QString xStr;
-                for(int i = 0, iend = xList.size(); i < iend; i++)
-                {
-                    xStr = xStr + QString::number(xList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_x = xStr;
-            }
-            //R
-            if(axibodContent.find(RKEY) != axibodContent.end())
-            {
-                QString rValue = axibodContent.value(RKEY).value.toString();
-                QStringList rList = rValue.split(",");
-                QString rStr;
-                for(int i = 0, iend = rList.size(); i < iend; i++)
-                {
-                    rStr = rStr + QString::number(rList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_r = rStr;
-            }
-            //DISCON
-            if(axibodContent.find(DISCONKEY) != axibodContent.end())
-            {
-                QString disconValue = axibodContent.value(DISCONKEY).value.toString();
-                QStringList disconList = disconValue.split(",");
-                QString disconStr;
-                for(int i = 0, iend = disconList.size(); i < iend; i++)
-                {
-                    disconStr = disconStr + QString::number(disconList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_discon = disconStr;
+                m_tnose = TNOSE_KARMAN;
             }
         }
-        else if(childContent.find(ELLBODKEY) != childContent.end())
+        //POWER
+        if(axibodContent.find(POWERKEY) != axibodContent.end())
         {
-            m_type = ELLBOD;
-            QHash<QString, CaseContent> ellbodContent = childContent.value(ELLBODKEY).childContent;
-            //LNOSE
-            if(ellbodContent.find(LNOSEKEY) != ellbodContent.end())
+            QString powerValue = axibodContent.value(POWERKEY).value.toString();
+            m_power = powerValue.toFloat();
+        }
+        //TRUNC
+        if(axibodContent.find(TRUNCKEY) != axibodContent.end())
+        {
+            QString truncValue = axibodContent.value(TRUNCKEY).value.toString();
+            if(truncValue == "TRUE")
             {
-                QString lnoseValue = ellbodContent.value(LNOSEKEY).value.toString();
-                m_lnose = lnoseValue.toFloat();
+                m_headType = TRUNCATE;
             }
-            //WNOSE
-            if(ellbodContent.find(WNOSEKEY) != ellbodContent.end())
+            else if(truncValue == "FALSE")
             {
-                QString wnoseValue = ellbodContent.value(WNOSEKEY).value.toString();
-                m_wnose = wnoseValue.toFloat();
+                m_headType = PASSIVATE;
             }
-            //ENOSE
-            if(ellbodContent.find(ENOSEKEY) != ellbodContent.end())
+        }
+        //BNOSE
+        if(axibodContent.find(BNOSEKEY) != axibodContent.end())
+        {
+            QString bnoseValue = axibodContent.value(BNOSEKEY).value.toString();
+            m_bnose = bnoseValue.toFloat();
+        }
+        //LCENTR
+        if(axibodContent.find(LCENTRKEY) != axibodContent.end())
+        {
+            QString lcentrValue = axibodContent.value(LCENTRKEY).value.toString();
+            m_lcentr = lcentrValue.toFloat();
+        }
+        //DCENTR
+        if(axibodContent.find(DCENTRKEY) != axibodContent.end())
+        {
+            QString dcentrValue = axibodContent.value(DCENTRKEY).value.toString();
+            m_dcentr = dcentrValue.toFloat();
+        }
+        //LAFT
+        if(axibodContent.find(LAFTKEY) != axibodContent.end())
+        {
+            QString laftValue = axibodContent.value(LAFTKEY).value.toString();
+            m_laft = laftValue.toFloat();
+        }
+        //DAFT
+        if(axibodContent.find(DAFTKEY) != axibodContent.end())
+        {
+            QString daftValue = axibodContent.value(DAFTKEY).value.toString();
+            m_daft = daftValue.toFloat();
+        }
+        //TAFT
+        if(axibodContent.find(TAFTKEY) != axibodContent.end())
+        {
+            QString taftValue = axibodContent.value(TAFTKEY).value.toString();
+            if(taftValue == "CONICAL")
             {
-                QString enoseValue = ellbodContent.value(ENOSEKEY).value.toString();
-                m_enose = enoseValue.toFloat();
+                m_taft = TAFT_CONICAL;
             }
-            //TNOSE
-            if(ellbodContent.find(TNOSEKEY) != ellbodContent.end())
+            else if(taftValue == "OGVIE")
             {
-                QString tnoseValue = ellbodContent.value(TNOSEKEY).value.toString();
-                if(tnoseValue == "CONICAL")
-                {
-                    m_tnose = TNOSE_CONICAL;
-                }
-                else if(tnoseValue == "OGVIE")
-                {
-                    m_tnose = TNOSE_OGVIE;
-                }
-                else if(tnoseValue == "POWER")
-                {
-                    m_tnose = TNOSE_POWER;
-                }
-                else if(tnoseValue == "HAACK")
-                {
-                    m_tnose = TNOSE_HAACK;
-                }
-                else if(tnoseValue == "KARMAN")
-                {
-                    m_tnose = TNOSE_KARMAN;
-                }
+                m_taft = TAFT_OGVIE;
             }
-            //POWER
-            if(ellbodContent.find(POWERKEY) != ellbodContent.end())
+            m_taftCheck = Qt::Checked;
+        }
+        //DEXIT
+        if(axibodContent.find(DEXITKEY) != axibodContent.end())
+        {
+            QString dexitValue = axibodContent.value(DEXITKEY).value.toString();
+            m_dexit = dexitValue.toFloat();
+        }
+        //BASE
+        if(axibodContent.find(BASEKEY) != axibodContent.end())
+        {
+            QString baseValue = axibodContent.value(BASEKEY).value.toString();
+            if(baseValue == "TRUE")
             {
-                QString powerValue = ellbodContent.value(POWERKEY).value.toString();
-                m_power = powerValue.toFloat();
+                m_base = true;
             }
-            //TRUNC
-            if(ellbodContent.find(TRUNCKEY) != ellbodContent.end())
+            else if(baseValue == "FALSE")
             {
-                QString truncValue = ellbodContent.value(TRUNCKEY).value.toString();
-                if(truncValue == "TRUE")
-                {
-                    m_headType = TRUNCATE;
-                }
-                else if(truncValue == "FALSE")
-                {
-                    m_headType = PASSIVATE;
-                }
+                m_base = false;
             }
-            //BNOSE
-            if(ellbodContent.find(BNOSEKEY) != ellbodContent.end())
+        }
+        //BETAN
+        if(axibodContent.find(BETANKEY) != axibodContent.end())
+        {
+            QString betanValue = axibodContent.value(BETANKEY).value.toString();
+            m_betan = betanValue.toFloat();
+        }
+        //JMACH
+        if(axibodContent.find(JMACHKEY) != axibodContent.end())
+        {
+            QString jmachValue = axibodContent.value(JMACHKEY).value.toString();
+            QStringList jmachList = jmachValue.split(",");
+            QString jmachStr;
+            for(int i = 0, iend = jmachList.size(); i < iend; i++)
             {
-                QString bnoseValue = ellbodContent.value(BNOSEKEY).value.toString();
-                m_bnose = bnoseValue.toFloat();
+                jmachStr = jmachStr + QString::number(jmachList[i].toFloat(), 'f', 2) + ",";
             }
-            //LCENTR
-            if(ellbodContent.find(LCENTRKEY) != ellbodContent.end())
+            m_jmach = jmachStr;
+        }
+        //PRAT
+        if(axibodContent.find(PRATKEY) != axibodContent.end())
+        {
+            QString pratValue = axibodContent.value(PRATKEY).value.toString();
+            QStringList pratList = pratValue.split(",");
+            QString pratStr;
+            for(int i = 0, iend = pratList.size(); i < iend; i++)
             {
-                QString lcentrValue = ellbodContent.value(LCENTRKEY).value.toString();
-                m_lcentr = lcentrValue.toFloat();
+                pratStr = pratStr + QString::number(pratList[i].toFloat(), 'f', 2) + ",";
             }
-            //WCENTR
-            if(ellbodContent.find(WCENTRKEY) != ellbodContent.end())
+            m_prat = pratStr;
+        }
+        //TRAT
+        if(axibodContent.find(TRATKEY) != axibodContent.end())
+        {
+            QString tratValue = axibodContent.value(TRATKEY).value.toString();
+            QStringList tratList = tratValue.split(",");
+            QString tratStr;
+            for(int i = 0, iend = tratList.size(); i < iend; i++)
             {
-                QString wcentrValue = ellbodContent.value(WCENTRKEY).value.toString();
-                m_wcentr = wcentrValue.toFloat();
+                tratStr = tratStr + QString::number(tratList[i].toFloat(), 'f', 2) + ",";
             }
-            //ECENTR
-            if(ellbodContent.find(ECENTRKEY) != ellbodContent.end())
-            {
-                QString ecentrValue = ellbodContent.value(ECENTRKEY).value.toString();
-                m_ecentr = ecentrValue.toFloat();
-            }
-            //LAFT
-            if(ellbodContent.find(LAFTKEY) != ellbodContent.end())
-            {
-                QString laftValue = ellbodContent.value(LAFTKEY).value.toString();
-                m_laft = laftValue.toFloat();
-            }
-            //WAFT
-            if(ellbodContent.find(WAFTKEY) != ellbodContent.end())
-            {
-                QString waftValue = ellbodContent.value(WAFTKEY).value.toString();
-                m_waft = waftValue.toFloat();
-            }
-            //EAFT
-            if(ellbodContent.find(EAFTKEY) != ellbodContent.end())
-            {
-                QString eaftValue = ellbodContent.value(EAFTKEY).value.toString();
-                m_eaft = eaftValue.toFloat();
-            }
-            //TAFT
-            if(ellbodContent.find(TAFTKEY) != ellbodContent.end())
-            {
-                QString taftValue = ellbodContent.value(TAFTKEY).value.toString();
-                if(taftValue == "CONICAL")
-                {
-                    m_taft = TAFT_CONICAL;
-                }
-                else if(taftValue == "OGVIE")
-                {
-                    m_taft = TAFT_OGVIE;
-                }
-                m_taftCheck = Qt::Checked;
-            }
-            //DEXIT
-            if(ellbodContent.find(DEXITKEY) != ellbodContent.end())
-            {
-                QString dexitValue = ellbodContent.value(DEXITKEY).value.toString();
-                m_dexit = dexitValue.toFloat();
-            }
-            //XO
-            if(ellbodContent.find(XOKEY) != ellbodContent.end())
-            {
-                QString xoValue = ellbodContent.value(XOKEY).value.toString();
-                m_xo = xoValue.toFloat();
-                m_xoCheck = Qt::Checked;
-            }
-            /////////////////////////////////////////////////////////////////////////
-            //NX
-            if(ellbodContent.find(NXKEY) != ellbodContent.end())
-            {
-                m_type = ELLBOD_NX;
-                QString nxValue = ellbodContent.value(NXKEY).value.toString();
-                m_nx = nxValue.toInt();
-            }
-            //X
-            if(ellbodContent.find(XKEY) != ellbodContent.end())
-            {
-                QString xValue = ellbodContent.value(XKEY).value.toString();
-                QStringList xList = xValue.split(",");
-                QString xStr;
-                for(int i = 0, iend = xList.size(); i < iend; i++)
-                {
-                    xStr = xStr + QString::number(xList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_x = xStr;
-            }
-            //ELLIPSE --- W AND H
-            if(ellbodContent.find(WKEY) != ellbodContent.end() && ellbodContent.find(HKEY) != ellbodContent.end())
-            {
-                QString wValue = ellbodContent.value(WKEY).value.toString();
-                QStringList wList = wValue.split(",");
-                QString wStr;
-                for(int i = 0, iend = wList.size(); i < iend; i++)
-                {
-                    wStr = wStr + QString::number(wList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_w = wStr;
+            m_trat = tratStr;
+        }
+        //XO
+        if(axibodContent.find(XOKEY) != axibodContent.end())
+        {
+            QString xoValue = axibodContent.value(XOKEY).value.toString();
+            m_xo = xoValue.toFloat();
+            m_xoCheck = Qt::Checked;
+        }
 
-                QString hValue = ellbodContent.value(HKEY).value.toString();
-                QStringList hList = hValue.split(",");
-                QString hStr;
-                for(int i = 0, iend = hList.size(); i < iend; i++)
-                {
-                    hStr = hStr + QString::number(hList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_h = hStr;
-
-                m_ellipseType = W_H;
-            }
-            //ELLIPSE --- W AND ELLIP
-            if(ellbodContent.find(WKEY) != ellbodContent.end() && ellbodContent.find(ELLIPKEY) != ellbodContent.end())
+        /////////////////////////////////////////////////////////////////////////
+        //NX
+        if(axibodContent.find(NXKEY) != axibodContent.end())
+        {
+            QString nxValue = axibodContent.value(NXKEY).value.toString();
+            m_nx = nxValue.toInt();
+            m_type = AXIBOD_NX;
+        }
+        //X
+        if(axibodContent.find(XKEY) != axibodContent.end())
+        {
+            QString xValue = axibodContent.value(XKEY).value.toString();
+            QStringList xList = xValue.split(",");
+            QString xStr;
+            for(int i = 0, iend = xList.size(); i < iend; i++)
             {
-                QString wValue = ellbodContent.value(WKEY).value.toString();
-                QStringList wList = wValue.split(",");
-                QString wStr;
-                for(int i = 0, iend = wList.size(); i < iend; i++)
-                {
-                    wStr = wStr + QString::number(wList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_w = wStr;
-
-                QString ellipValue = ellbodContent.value(ELLBODKEY).value.toString();
-                QStringList ellipList = ellipValue.split(",");
-                QString ellipStr;
-                for(int i = 0, iend = ellipList.size(); i < iend; i++)
-                {
-                    ellipStr= ellipStr + QString::number(ellipList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_ellip = ellipStr;
-
-                m_ellipseType = W_ELLIP;
+                xStr = xStr + QString::number(xList[i].toFloat(), 'f', 2) + ",";
             }
-            //ELLIPSE --- H AND ELLIP
-            if(ellbodContent.find(HKEY) != ellbodContent.end() && ellbodContent.find(ELLIPKEY) != ellbodContent.end())
+            m_x = xStr;
+        }
+        //R
+        if(axibodContent.find(RKEY) != axibodContent.end())
+        {
+            QString rValue = axibodContent.value(RKEY).value.toString();
+            QStringList rList = rValue.split(",");
+            QString rStr;
+            for(int i = 0, iend = rList.size(); i < iend; i++)
             {
-                QString hValue = ellbodContent.value(HKEY).value.toString();
-                QStringList hList = hValue.split(",");
-                QString hStr;
-                for(int i = 0, iend = hList.size(); i < iend; i++)
-                {
-                    hStr = hStr + QString::number(hList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_h = hStr;
-
-                QString ellipValue = ellbodContent.value(ELLBODKEY).value.toString();
-                QStringList ellipList = ellipValue.split(",");
-                QString ellipStr;
-                for(int i = 0, iend = ellipList.size(); i < iend; i++)
-                {
-                    ellipStr= ellipStr + QString::number(ellipList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_ellip = ellipStr;
-
-                m_ellipseType = H_ELLIP;
+                rStr = rStr + QString::number(rList[i].toFloat(), 'f', 2) + ",";
             }
-            //DISCON
-            if(ellbodContent.find(DISCONKEY) != ellbodContent.end())
+            m_r = rStr;
+        }
+        //DISCON
+        if(axibodContent.find(DISCONKEY) != axibodContent.end())
+        {
+            QString disconValue = axibodContent.value(DISCONKEY).value.toString();
+            QStringList disconList = disconValue.split(",");
+            QString disconStr;
+            for(int i = 0, iend = disconList.size(); i < iend; i++)
             {
-                QString disconValue = ellbodContent.value(DISCONKEY).value.toString();
-                QStringList disconList = disconValue.split(",");
-                QString disconStr;
-                for(int i = 0, iend = disconList.size(); i < iend; i++)
-                {
-                    disconStr = disconStr + QString::number(disconList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_discon = disconStr;
+                disconStr = disconStr + QString::number(disconList[i].toFloat(), 'f', 2) + ",";
             }
+            m_discon = disconStr;
+        }
+    }
+    else if(childContent.find(ELLBODKEY) != childContent.end())
+    {
+        m_type = ELLBOD;
+        QHash<QString, CaseContent> ellbodContent = childContent.value(ELLBODKEY).childContent;
+        //LNOSE
+        if(ellbodContent.find(LNOSEKEY) != ellbodContent.end())
+        {
+            QString lnoseValue = ellbodContent.value(LNOSEKEY).value.toString();
+            m_lnose = lnoseValue.toFloat();
+        }
+        //WNOSE
+        if(ellbodContent.find(WNOSEKEY) != ellbodContent.end())
+        {
+            QString wnoseValue = ellbodContent.value(WNOSEKEY).value.toString();
+            m_wnose = wnoseValue.toFloat();
+        }
+        //ENOSE
+        if(ellbodContent.find(ENOSEKEY) != ellbodContent.end())
+        {
+            QString enoseValue = ellbodContent.value(ENOSEKEY).value.toString();
+            m_enose = enoseValue.toFloat();
+        }
+        //TNOSE
+        if(ellbodContent.find(TNOSEKEY) != ellbodContent.end())
+        {
+            QString tnoseValue = ellbodContent.value(TNOSEKEY).value.toString();
+            if(tnoseValue == "CONICAL")
+            {
+                m_tnose = TNOSE_CONICAL;
+            }
+            else if(tnoseValue == "OGVIE")
+            {
+                m_tnose = TNOSE_OGVIE;
+            }
+            else if(tnoseValue == "POWER")
+            {
+                m_tnose = TNOSE_POWER;
+            }
+            else if(tnoseValue == "HAACK")
+            {
+                m_tnose = TNOSE_HAACK;
+            }
+            else if(tnoseValue == "KARMAN")
+            {
+                m_tnose = TNOSE_KARMAN;
+            }
+        }
+        //POWER
+        if(ellbodContent.find(POWERKEY) != ellbodContent.end())
+        {
+            QString powerValue = ellbodContent.value(POWERKEY).value.toString();
+            m_power = powerValue.toFloat();
+        }
+        //TRUNC
+        if(ellbodContent.find(TRUNCKEY) != ellbodContent.end())
+        {
+            QString truncValue = ellbodContent.value(TRUNCKEY).value.toString();
+            if(truncValue == "TRUE")
+            {
+                m_headType = TRUNCATE;
+            }
+            else if(truncValue == "FALSE")
+            {
+                m_headType = PASSIVATE;
+            }
+        }
+        //BNOSE
+        if(ellbodContent.find(BNOSEKEY) != ellbodContent.end())
+        {
+            QString bnoseValue = ellbodContent.value(BNOSEKEY).value.toString();
+            m_bnose = bnoseValue.toFloat();
+        }
+        //LCENTR
+        if(ellbodContent.find(LCENTRKEY) != ellbodContent.end())
+        {
+            QString lcentrValue = ellbodContent.value(LCENTRKEY).value.toString();
+            m_lcentr = lcentrValue.toFloat();
+        }
+        //WCENTR
+        if(ellbodContent.find(WCENTRKEY) != ellbodContent.end())
+        {
+            QString wcentrValue = ellbodContent.value(WCENTRKEY).value.toString();
+            m_wcentr = wcentrValue.toFloat();
+        }
+        //ECENTR
+        if(ellbodContent.find(ECENTRKEY) != ellbodContent.end())
+        {
+            QString ecentrValue = ellbodContent.value(ECENTRKEY).value.toString();
+            m_ecentr = ecentrValue.toFloat();
+        }
+        //LAFT
+        if(ellbodContent.find(LAFTKEY) != ellbodContent.end())
+        {
+            QString laftValue = ellbodContent.value(LAFTKEY).value.toString();
+            m_laft = laftValue.toFloat();
+        }
+        //WAFT
+        if(ellbodContent.find(WAFTKEY) != ellbodContent.end())
+        {
+            QString waftValue = ellbodContent.value(WAFTKEY).value.toString();
+            m_waft = waftValue.toFloat();
+        }
+        //EAFT
+        if(ellbodContent.find(EAFTKEY) != ellbodContent.end())
+        {
+            QString eaftValue = ellbodContent.value(EAFTKEY).value.toString();
+            m_eaft = eaftValue.toFloat();
+        }
+        //TAFT
+        if(ellbodContent.find(TAFTKEY) != ellbodContent.end())
+        {
+            QString taftValue = ellbodContent.value(TAFTKEY).value.toString();
+            if(taftValue == "CONICAL")
+            {
+                m_taft = TAFT_CONICAL;
+            }
+            else if(taftValue == "OGVIE")
+            {
+                m_taft = TAFT_OGVIE;
+            }
+            m_taftCheck = Qt::Checked;
+        }
+        //DEXIT
+        if(ellbodContent.find(DEXITKEY) != ellbodContent.end())
+        {
+            QString dexitValue = ellbodContent.value(DEXITKEY).value.toString();
+            m_dexit = dexitValue.toFloat();
+        }
+        //XO
+        if(ellbodContent.find(XOKEY) != ellbodContent.end())
+        {
+            QString xoValue = ellbodContent.value(XOKEY).value.toString();
+            m_xo = xoValue.toFloat();
+            m_xoCheck = Qt::Checked;
+        }
+        /////////////////////////////////////////////////////////////////////////
+        //NX
+        if(ellbodContent.find(NXKEY) != ellbodContent.end())
+        {
+            m_type = ELLBOD_NX;
+            QString nxValue = ellbodContent.value(NXKEY).value.toString();
+            m_nx = nxValue.toInt();
+        }
+        //X
+        if(ellbodContent.find(XKEY) != ellbodContent.end())
+        {
+            QString xValue = ellbodContent.value(XKEY).value.toString();
+            QStringList xList = xValue.split(",");
+            QString xStr;
+            for(int i = 0, iend = xList.size(); i < iend; i++)
+            {
+                xStr = xStr + QString::number(xList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_x = xStr;
+        }
+        //ELLIPSE --- W AND H
+        if(ellbodContent.find(WKEY) != ellbodContent.end() && ellbodContent.find(HKEY) != ellbodContent.end())
+        {
+            QString wValue = ellbodContent.value(WKEY).value.toString();
+            QStringList wList = wValue.split(",");
+            QString wStr;
+            for(int i = 0, iend = wList.size(); i < iend; i++)
+            {
+                wStr = wStr + QString::number(wList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_w = wStr;
+
+            QString hValue = ellbodContent.value(HKEY).value.toString();
+            QStringList hList = hValue.split(",");
+            QString hStr;
+            for(int i = 0, iend = hList.size(); i < iend; i++)
+            {
+                hStr = hStr + QString::number(hList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_h = hStr;
+
+            m_ellipseType = W_H;
+        }
+        //ELLIPSE --- W AND ELLIP
+        if(ellbodContent.find(WKEY) != ellbodContent.end() && ellbodContent.find(ELLIPKEY) != ellbodContent.end())
+        {
+            QString wValue = ellbodContent.value(WKEY).value.toString();
+            QStringList wList = wValue.split(",");
+            QString wStr;
+            for(int i = 0, iend = wList.size(); i < iend; i++)
+            {
+                wStr = wStr + QString::number(wList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_w = wStr;
+
+            QString ellipValue = ellbodContent.value(ELLBODKEY).value.toString();
+            QStringList ellipList = ellipValue.split(",");
+            QString ellipStr;
+            for(int i = 0, iend = ellipList.size(); i < iend; i++)
+            {
+                ellipStr= ellipStr + QString::number(ellipList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_ellip = ellipStr;
+
+            m_ellipseType = W_ELLIP;
+        }
+        //ELLIPSE --- H AND ELLIP
+        if(ellbodContent.find(HKEY) != ellbodContent.end() && ellbodContent.find(ELLIPKEY) != ellbodContent.end())
+        {
+            QString hValue = ellbodContent.value(HKEY).value.toString();
+            QStringList hList = hValue.split(",");
+            QString hStr;
+            for(int i = 0, iend = hList.size(); i < iend; i++)
+            {
+                hStr = hStr + QString::number(hList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_h = hStr;
+
+            QString ellipValue = ellbodContent.value(ELLBODKEY).value.toString();
+            QStringList ellipList = ellipValue.split(",");
+            QString ellipStr;
+            for(int i = 0, iend = ellipList.size(); i < iend; i++)
+            {
+                ellipStr= ellipStr + QString::number(ellipList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_ellip = ellipStr;
+
+            m_ellipseType = H_ELLIP;
+        }
+        //DISCON
+        if(ellbodContent.find(DISCONKEY) != ellbodContent.end())
+        {
+            QString disconValue = ellbodContent.value(DISCONKEY).value.toString();
+            QStringList disconList = disconValue.split(",");
+            QString disconStr;
+            for(int i = 0, iend = disconList.size(); i < iend; i++)
+            {
+                disconStr = disconStr + QString::number(disconList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_discon = disconStr;
         }
     }
 }

@@ -32,126 +32,122 @@ FltconTreeItem::FltconTreeItem(const QList<QVariant> &data, TreeItem *parent)
 
 void FltconTreeItem::setContent(const CaseContent &caseContent)
 {
-    QHash<QString, CaseContent>::const_iterator iter;
-    for(iter = caseContent.childContent.begin();iter != caseContent.childContent.end(); iter++)
+    QHash<QString, CaseContent> childContent = caseContent.childContent;
+    if(childContent.find(FLTCONKEY) != childContent.end())
     {
-        QHash<QString, CaseContent> childContent = caseContent.childContent;
-        if(childContent.find(FLTCONKEY) != childContent.end())
+        QHash<QString, CaseContent> fltConContent = childContent.value(FLTCONKEY).childContent;
+        //NALPHA
+        if(fltConContent.find(NALPHAKEY) != fltConContent.end())
         {
-            QHash<QString, CaseContent> fltConContent = childContent.value(FLTCONKEY).childContent;
-            //NALPHA
-            if(fltConContent.find(NALPHAKEY) != fltConContent.end())
+            QString nalphaValue = fltConContent.value(NALPHAKEY).value.toString();
+            m_nalpha = nalphaValue.toFloat();
+        }
+        //ALPHA
+        if(fltConContent.find(ALPHAKEY) != fltConContent.end())
+        {
+            QString alphaValue = fltConContent.value(ALPHAKEY).value.toString();
+            QStringList alphaList = alphaValue.split(",");
+            QString alphaStr;
+            for(int i = 0, iend = alphaList.size(); i < iend; i++)
             {
-                QString nalphaValue = fltConContent.value(NALPHAKEY).value.toString();
-                m_nalpha = nalphaValue.toFloat();
+                alphaStr = alphaStr + QString::number(alphaList[i].toFloat(), 'f', 0) + ",";
             }
-            //ALPHA
-            if(fltConContent.find(ALPHAKEY) != fltConContent.end())
+            m_alpha = alphaStr;
+        }
+        //BETA
+        if(fltConContent.find(BETAKEY) != fltConContent.end())
+        {
+            m_betaCheckState = Qt::Checked;
+            QString betaValue = fltConContent.value(BETAKEY).value.toString();
+            m_beta = betaValue.toFloat();
+        }
+        //PHI
+        if(fltConContent.find(PHIKEY) != fltConContent.end())
+        {
+            m_phiCheckState = Qt::Checked;
+            QString phiValue = fltConContent.value(PHIKEY).value.toString();
+            m_phi = phiValue.toFloat();
+        }
+        //MACH
+        if(fltConContent.find(NMACHKEY) != fltConContent.end() &&
+                fltConContent.find(MACHKEY) != fltConContent.end())
+        {
+            m_type = MACH;
+            QString nmachValue = fltConContent.value(NMACHKEY).value.toString();
+            m_nmach = nmachValue.toFloat();
+            QString machValue = fltConContent.value(MACHKEY).value.toString();
+            QStringList machList = machValue.split(",");
+            QString machStr;
+            for(int i = 0, iend = machList.size(); i < iend; i++)
             {
-                QString alphaValue = fltConContent.value(ALPHAKEY).value.toString();
-                QStringList alphaList = alphaValue.split(",");
-                QString alphaStr;
-                for(int i = 0, iend = alphaList.size(); i < iend; i++)
-                {
-                    alphaStr = alphaStr + QString::number(alphaList[i].toFloat(), 'f', 0) + ",";
-                }
-                m_alpha = alphaStr;
+                machStr = machStr + QString::number(machList[i].toFloat(), 'f', 2) + ",";
             }
-            //BETA
-            if(fltConContent.find(BETAKEY) != fltConContent.end())
+            m_mach = machStr;
+        }
+        //VINF
+        else if(fltConContent.find(NVINFKEY) != fltConContent.end() &&
+                fltConContent.find(VINFKEY) != fltConContent.end())
+        {
+            m_type = VINF;
+            QString nvinfValue = fltConContent.value(NVINFKEY).value.toString();
+            nvinfValue = nvinfValue.toFloat();
+            m_nvinf = fltConContent.value(NVINFKEY).value.toFloat();
+            QString vinfValue = fltConContent.value(VINFKEY).value.toString();
+            QStringList vinfList = vinfValue.split(",");
+            QString vinfStr;
+            for(int i = 0, iend = vinfList.size(); i < iend; i++)
             {
-                m_betaCheckState = Qt::Checked;
-                QString betaValue = fltConContent.value(BETAKEY).value.toString();
-                m_beta = betaValue.toFloat();
+                vinfStr = vinfStr + QString::number(vinfList[i].toFloat(), 'f', 2) + ",";
             }
-            //PHI
-            if(fltConContent.find(PHIKEY) != fltConContent.end())
-            {
-                m_phiCheckState = Qt::Checked;
-                QString phiValue = fltConContent.value(PHIKEY).value.toString();
-                m_phi = phiValue.toFloat();
-            }
-            //MACH
-            if(fltConContent.find(NMACHKEY) != fltConContent.end() &&
-                    fltConContent.find(MACHKEY) != fltConContent.end())
-            {
-                m_type = MACH;
-                QString nmachValue = fltConContent.value(NMACHKEY).value.toString();
-                m_nmach = nmachValue.toFloat();
-                QString machValue = fltConContent.value(MACHKEY).value.toString();
-                QStringList machList = machValue.split(",");
-                QString machStr;
-                for(int i = 0, iend = machList.size(); i < iend; i++)
-                {
-                    machStr = machStr + QString::number(machList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_mach = machStr;
-            }
-            //VINF
-            else if(fltConContent.find(NVINFKEY) != fltConContent.end() &&
-                    fltConContent.find(VINFKEY) != fltConContent.end())
-            {
-                m_type = VINF;
-                QString nvinfValue = fltConContent.value(NVINFKEY).value.toString();
-                nvinfValue = nvinfValue.toFloat();
-                m_nvinf = fltConContent.value(NVINFKEY).value.toFloat();
-                QString vinfValue = fltConContent.value(VINFKEY).value.toString();
-                QStringList vinfList = vinfValue.split(",");
-                QString vinfStr;
-                for(int i = 0, iend = vinfList.size(); i < iend; i++)
-                {
-                    vinfStr = vinfStr + QString::number(vinfList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_vinf = vinfStr;
-            }
+            m_vinf = vinfStr;
+        }
 
-            //REN
-            if(fltConContent.find(RENKEY) != fltConContent.end())
+        //REN
+        if(fltConContent.find(RENKEY) != fltConContent.end())
+        {
+            m_reyType = REN;
+            QString renValue = fltConContent.value(RENKEY).value.toString();
+            QStringList renList = renValue.split(",");
+            QString renStr;
+            for(int i = 0, iend = renList.size(); i < iend; i++)
             {
-                m_reyType = REN;
-                QString renValue = fltConContent.value(RENKEY).value.toString();
-                QStringList renList = renValue.split(",");
-                QString renStr;
-                for(int i = 0, iend = renList.size(); i < iend; i++)
-                {
-                    renStr = renStr + QString::number(renList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_ren = renStr;
+                renStr = renStr + QString::number(renList[i].toFloat(), 'f', 2) + ",";
             }
-            //ALT
-            else if(fltConContent.find(ALTKEY) != fltConContent.end())
+            m_ren = renStr;
+        }
+        //ALT
+        else if(fltConContent.find(ALTKEY) != fltConContent.end())
+        {
+            m_reyType = ALT;
+            QString altValue = fltConContent.value(ALTKEY).value.toString();
+            QStringList altList = altValue.split(",");
+            QString altStr;
+            for(int i = 0, iend = altList.size(); i < iend; i++)
             {
-                m_reyType = ALT;
-                QString altValue = fltConContent.value(ALTKEY).value.toString();
-                QStringList altList = altValue.split(",");
-                QString altStr;
-                for(int i = 0, iend = altList.size(); i < iend; i++)
-                {
-                    altStr = altStr + QString::number(altList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_alt = altStr;
+                altStr = altStr + QString::number(altList[i].toFloat(), 'f', 2) + ",";
             }
-            else if(fltConContent.find(PINFKEY) != fltConContent.end() &&
-                    fltConContent.find(TINFKEY) != fltConContent.end())
+            m_alt = altStr;
+        }
+        else if(fltConContent.find(PINFKEY) != fltConContent.end() &&
+                fltConContent.find(TINFKEY) != fltConContent.end())
+        {
+            m_reyType = PINF_TINF;
+            QString pinfValue = fltConContent.value(PINFKEY).value.toString();
+            QStringList pinfList = pinfValue.split(",");
+            QString pinfStr;
+            for(int i = 0, iend = pinfList.size(); i < iend; i++)
             {
-                m_reyType = PINF_TINF;
-                QString pinfValue = fltConContent.value(PINFKEY).value.toString();
-                QStringList pinfList = pinfValue.split(",");
-                QString pinfStr;
-                for(int i = 0, iend = pinfList.size(); i < iend; i++)
-                {
-                    pinfStr = pinfStr + QString::number(pinfList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_pinf = pinfStr;
-                QString tinfValue = fltConContent.value(TINFKEY).value.toString();
-                QStringList tinfList = tinfValue.split(",");
-                QString tinfStr;
-                for(int i = 0, iend = tinfList.size(); i < iend; i++)
-                {
-                    tinfStr = tinfStr + QString::number(tinfList[i].toFloat(), 'f', 2) + ",";
-                }
-                m_tinf = tinfStr;
+                pinfStr = pinfStr + QString::number(pinfList[i].toFloat(), 'f', 2) + ",";
             }
+            m_pinf = pinfStr;
+            QString tinfValue = fltConContent.value(TINFKEY).value.toString();
+            QStringList tinfList = tinfValue.split(",");
+            QString tinfStr;
+            for(int i = 0, iend = tinfList.size(); i < iend; i++)
+            {
+                tinfStr = tinfStr + QString::number(tinfList[i].toFloat(), 'f', 2) + ",";
+            }
+            m_tinf = tinfStr;
         }
     }
 }

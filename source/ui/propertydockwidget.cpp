@@ -70,6 +70,7 @@ void PropertyDockWidget::initManager()
     m_stringManager = new QtStringPropertyManager(this);
     m_enumManager = new QtEnumPropertyManager(this);
     m_boolManager = new QtBoolPropertyManager(this);
+    m_groupManager = new QtGroupPropertyManager(this);
 
     //init editor fac
     QtDoubleSpinBoxFactory *doubleEditorFac = new QtDoubleSpinBoxFactory(this);
@@ -190,6 +191,22 @@ QtProperty *PropertyDockWidget::addProperty(const QHash<QString, QVariant> &prop
             m_enumManager->setEnumNames(item, enumNames);
             m_enumManager->setValue(item, value.toInt());
 
+            QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
+            foreach(QVariant property, childProperties)
+            {
+                QHash<QString, QVariant> childProperty = property.toHash();
+                if(childProperty.isEmpty())
+                {
+                    continue;
+                }
+                QtProperty *childItem = addProperty(childProperty);
+                item->addSubProperty(childItem);
+            }
+            break;
+        }
+        case PROPERTY_TYPE_GROUP:
+        {
+            item = m_groupManager->addProperty(showText);
             QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
             foreach(QVariant property, childProperties)
             {

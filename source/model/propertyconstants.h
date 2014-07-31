@@ -2,6 +2,7 @@
 #define PROPERTYCONSTANTS_H
 
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 #include <QHash>
 
@@ -78,6 +79,7 @@ inline PropertyItem getPropertyItem(const QString &name,
 enum PatternType
 {
     NINETY_TO_NEGATIVE_NINETY,
+    INT_INFINITE_TO_ZERO,
     DECIMALS_LOW_HUNDRED_UP_ZERO,
     DECIMALS_INFINITE_TO_ZERO,
     DECIMALS_NO_LIMIT
@@ -119,6 +121,13 @@ inline QString getPattern(const PatternType &type, const int &count)
             pattern.append("\\d+.[0-9]\\d{0,1},");
         }
         break;
+    }
+    case INT_INFINITE_TO_ZERO:
+    {
+        for(int i = 0, iend = count; i < iend; i++)
+        {
+            pattern.append("\\d+.");
+        }
     }
     }
     return pattern;
