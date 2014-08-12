@@ -1,5 +1,6 @@
 #include "fltcontreeitem.h"
 
+const QLatin1String ANGLEKEY("ANGLE");
 const QLatin1String FLTCONKEY("FLTCON");
 const QLatin1String NALPHAKEY("NALPHA");
 const QLatin1String ALPHAKEY("ALPHA");
@@ -28,6 +29,7 @@ FltconTreeItem::FltconTreeItem(const QList<QVariant> &data, TreeItem *parent)
     ,m_phiCheckState(Qt::Unchecked), m_phi(0), m_type(MACH), m_nmach(2)
     ,m_nvinf(2), m_reyType(REN)
 {
+    messageBox.setWindowTitle(tr("Warning"));
 }
 
 void FltconTreeItem::setContent(const CaseContent &caseContent)
@@ -156,25 +158,28 @@ QList<QVariant> FltconTreeItem::getProperty() const
 {
     QList<QVariant> propertyItems;
 
+    //ANGLE GROUP
+    PropertyItem angleGroupItem = getPropertyItem(ANGLEKEY, tr("ANGLE"),
+                                                  PROPERTY_TYPE_GROUP);
+    QList<QVariant> angleChildProperty;
     //ALPHA
-    propertyItems.append(getPropertyItem(NALPHAKEY, tr("NALPHA"),
+    angleChildProperty.append(getPropertyItem(NALPHAKEY, tr("NALPHA"),
                                          PROPERTY_TYPE_INT, m_nalpha,
                                          2, 20));
-    QString alphaPattern = getPattern(NINETY_TO_NEGATIVE_NINETY, m_nalpha);
-    propertyItems.append(getPropertyItem(ALPHAKEY, tr("ALPHA(deg)"),
-                                         PROPERTY_TYPE_STRING_REG, m_alpha,
-                                         0, 0, 0, false, Qt::Unchecked, QList<QVariant>(),
-                                         true, alphaPattern));
+    angleChildProperty.append(getPropertyItem(ALPHAKEY, tr("ALPHA(deg)"),
+                                         PROPERTY_TYPE_STRING, m_alpha));
     //BETA
-    propertyItems.append(getPropertyItem(BETAKEY, tr("BETA(deg)"),
+    angleChildProperty.append(getPropertyItem(BETAKEY, tr("BETA(deg)"),
                                          PROPERTY_TYPE_INT, m_beta, -90, 90, 0,
                                          true, m_betaCheckState));
     //PHI
-    propertyItems.append(getPropertyItem(PHIKEY, tr("PHI(deg)"),
+    angleChildProperty.append(getPropertyItem(PHIKEY, tr("PHI(deg)"),
                                          PROPERTY_TYPE_INT, m_phi, -90, 90, 0,
                                          true, m_phiCheckState));
+    angleGroupItem.insert(PropertyConstants::CHILD_PROPERTY, angleChildProperty);
+    propertyItems.append(angleGroupItem);
     
-    int count = 0;
+    //MACH GROUP OR VINF GROUP
     PropertyItem typeGroupItem = getPropertyItem(TYPEKEY, tr("Type Select"),
                                                  PROPERTY_TYPE_ENUM_GROUP, m_type, 0,
                                                  0, 0, false, Qt::Unchecked, TypeList);
@@ -183,64 +188,46 @@ QList<QVariant> FltconTreeItem::getProperty() const
     {
         PropertyItem nmachItem = getPropertyItem(NMACHKEY, tr("NMACH"),
                                                  PROPERTY_TYPE_INT, m_nmach, 2, 20);
-        QString machPattern = getPattern(DECIMALS_LOW_HUNDRED_UP_ZERO, m_nmach);
         PropertyItem machValueItem = getPropertyItem(MACHKEY, tr("MACH"),
-                                                     PROPERTY_TYPE_STRING_REG, m_mach,
-                                                     0, 0, 0, false, Qt::Unchecked,
-                                                     QList<QVariant>(), true, machPattern);
+                                                     PROPERTY_TYPE_STRING, m_mach);
         typeChildProperty.append(nmachItem);
         typeChildProperty.append(machValueItem);
-        count = m_nmach;
     }
     else if(m_type == VINF)
     {
         PropertyItem nvinfItem = getPropertyItem(NVINFKEY, tr("NVINF"),
                                                  PROPERTY_TYPE_INT, m_nvinf, 2, 20);
-        QString vinfPattern = getPattern(DECIMALS_LOW_HUNDRED_UP_ZERO, m_nvinf);
         PropertyItem vinfItem = getPropertyItem(VINFKEY, tr("VINF(L/sec)"),
-                                                PROPERTY_TYPE_STRING_REG, m_vinf,
-                                                0, 0, 0, false, Qt::Unchecked,
-                                                QList<QVariant>(), true, vinfPattern);
+                                                PROPERTY_TYPE_STRING, m_vinf);
         typeChildProperty.append(nvinfItem);
         typeChildProperty.append(vinfItem);
-        count = m_nvinf;
     }
     typeGroupItem.insert(PropertyConstants::CHILD_PROPERTY, typeChildProperty);
     propertyItems.append(typeGroupItem);
 
+    //REY NUMBER GROUP
     PropertyItem reyGroupItem = getPropertyItem(REYNOLDSTYPEKEY, QObject::tr("Reynolds Number"),
                                                 PROPERTY_TYPE_ENUM_GROUP, m_reyType, 0, 0, 0,
                                                 false, Qt::Unchecked, ReynoldsList);
     QList<QVariant> reyChildProperty;
     if(m_reyType == REN)
     {
-        QString renPattern = getPattern(DECIMALS_NO_LIMIT, count);
         PropertyItem renValueItem = getPropertyItem(RENKEY, tr("REN(1/L)"),
-                                                    PROPERTY_TYPE_STRING_REG, m_ren,
-                                                    0, 0, 0, false, Qt::Unchecked,
-                                                    QList<QVariant>(), true, renPattern);
+                                                    PROPERTY_TYPE_STRING, m_ren);
         reyChildProperty.append(renValueItem);
     }
     else if(m_reyType == ALT)
     {
-        QString altPattern = getPattern(DECIMALS_NO_LIMIT, count);
         PropertyItem altValueItem = getPropertyItem(ALTKEY, tr("ALT(L)"),
-                                                    PROPERTY_TYPE_STRING_REG, m_alt,
-                                                    0, 0, 0, false, Qt::Unchecked,
-                                                    QList<QVariant>(), true, altPattern);
+                                                    PROPERTY_TYPE_STRING, m_alt);
         reyChildProperty.append(altValueItem);
     }
     else if(m_reyType == PINF_TINF)
     {
-        QString pinf_tinf_Pattern = getPattern(DECIMALS_NO_LIMIT, count);
         PropertyItem pinfValueItem = getPropertyItem(PINFKEY, tr("PINF(L*L)"),
-                                                     PROPERTY_TYPE_STRING_REG, m_pinf,
-                                                     0, 0, 0, false, Qt::Unchecked,
-                                                     QList<QVariant>(), true, pinf_tinf_Pattern);
+                                                     PROPERTY_TYPE_STRING, m_pinf);
         PropertyItem tinfValueItem = getPropertyItem(TINFKEY, tr("TINF(deg)"),
-                                                     PROPERTY_TYPE_STRING_REG, m_tinf,
-                                                     0, 0, 0, false, Qt::Unchecked,
-                                                     QList<QVariant>(), true, pinf_tinf_Pattern);
+                                                     PROPERTY_TYPE_STRING, m_tinf);
         reyChildProperty.append(pinfValueItem);
         reyChildProperty.append(tinfValueItem);
     }
@@ -260,7 +247,17 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
     }
     else if(objectName == ALPHAKEY)
     {
-        m_alpha = value;
+        if(checkStringContent(value, m_nalpha))
+        {
+            QVariant correctValue = correctStringContent(value, 0);
+            m_alpha = correctValue;
+        }
+        else
+        {
+            m_alpha = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check alpha value, like \"1,2,3,4,5,....\" and count equal nalpha value."));
+        }
     }
     else if(objectName == BETAKEY)
     {
@@ -323,7 +320,17 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
     }
     else if(objectName == MACHKEY)
     {
-        m_mach = value;
+        if(checkStringContent(value, m_nmach))
+        {
+            QVariant correctValue = correctStringContent(value, 2);
+            m_mach = correctValue;
+        }
+        else
+        {
+            m_mach = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check mach value, like \"1.00,2.00,3.00,4.00,5.00,....\" and count equal nmach value."));
+        }
     }
     else if(objectName == NVINFKEY)
     {
@@ -348,7 +355,17 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
     }
     else if(objectName == VINFKEY)
     {
-        m_vinf = value;
+        if(checkStringContent(value, m_nvinf))
+        {
+            QVariant correctValue = correctStringContent(value, 2);
+            m_vinf = correctValue;
+        }
+        else
+        {
+            m_vinf = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check vinf value, like \"1.00,2.00,3.00,4.00,5.00,....\" and count equal nvinf value."));
+        }
     }
     else if(objectName == REYNOLDSTYPEKEY)
     {
@@ -380,19 +397,95 @@ void FltconTreeItem::setNewPropertyData(QString objectName, QString value)
     }
     else if(objectName == RENKEY)
     {
-        m_ren = value;
+        int reyCount = 0;
+        if(m_type == MACH)
+        {
+            reyCount = m_nmach;
+        }
+        else if(m_type == VINF)
+        {
+            reyCount = m_nvinf;
+        }
+        if(checkStringContent(value, reyCount))
+        {
+            QVariant correctValue = correctStringContent(value, 2);
+            m_ren = correctValue;
+        }
+        else
+        {
+            m_ren = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check ren value, like \"1.00,2.00,3.00,4.00,5.00,....\" and count equal nmach or nvinf value."));
+        }
     }
     else if(objectName == ALTKEY)
     {
-        m_alt = value;
+        int reyCount = 0;
+        if(m_type == MACH)
+        {
+            reyCount = m_nmach;
+        }
+        else if(m_type == VINF)
+        {
+            reyCount = m_nvinf;
+        }
+        if(checkStringContent(value, reyCount))
+        {
+            QVariant correctValue = correctStringContent(value, 2);
+            m_alt = correctValue;
+        }
+        else
+        {
+            m_alt = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check alt value, like \"1.00,2.00,3.00,4.00,5.00,....\" and count equal nmach or nvinf value."));
+        }
     }
     else if(objectName == PINFKEY)
     {
-        m_pinf = value;
+        int reyCount = 0;
+        if(m_type == MACH)
+        {
+            reyCount = m_nmach;
+        }
+        else if(m_type == VINF)
+        {
+            reyCount = m_nvinf;
+        }
+        if(checkStringContent(value, reyCount))
+        {
+            QVariant correctValue = correctStringContent(value, 2);
+            m_pinf = correctValue;
+        }
+        else
+        {
+            m_pinf = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check pinf value, like \"1.00,2.00,3.00,4.00,5.00,....\" and count equal nmach or nvinf value."));
+        }
     }
     else if(objectName == TINFKEY)
     {
-        m_tinf = value;
+        int reyCount = 0;
+        if(m_type == MACH)
+        {
+            reyCount = m_nmach;
+        }
+        else if(m_type == VINF)
+        {
+            reyCount = m_nvinf;
+        }
+        if(checkStringContent(value, reyCount))
+        {
+            QVariant correctValue = correctStringContent(value, 2);
+            m_tinf = correctValue;
+        }
+        else
+        {
+            m_tinf = value;
+            messageBox.show();
+            messageBox.setText(tr("Please check tinf value, like \"1.00,2.00,3.00,4.00,5.00,....\" and count equal nmach or nvinf value."));
+        }
     }
 }
 

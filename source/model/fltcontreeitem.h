@@ -1,6 +1,7 @@
 #ifndef FLTCONTREEITEM_H
 #define FLTCONTREEITEM_H
 
+#include <QMessageBox>
 #include <QStringList>
 #include <QHash>
 #include <QVariant>
@@ -60,6 +61,7 @@ private:
     QVariant m_ren;
     QVariant m_tinf;
     QVariant m_pinf;
+    QMessageBox messageBox;
 };
 
 #endif // FLTCONTREEITEM_H

@@ -190,9 +190,11 @@ public:
 
 public Q_SLOTS:
     void setValue(QtProperty *property, const QString &val);
+    void setValueWithUpdate(QtProperty *property, const QString &val);
     void setRegExp(QtProperty *property, const QRegExp &regExp);
     void setEchoMode(QtProperty *property, EchoMode echoMode);
     void setReadOnly(QtProperty *property, bool readOnly);
+    void editingFinished(QtProperty *property);
 
 Q_SIGNALS:
     void valueChanged(QtProperty *property, const QString &val);

@@ -1476,9 +1476,26 @@ void QtStringPropertyManager::setValue(QtProperty *property, const QString &val)
     data.val = val;
 
     it.value() = data;
+}
 
+void QtStringPropertyManager::setValueWithUpdate(QtProperty *property, const QString &val)
+{
+    const QtStringPropertyManagerPrivate::PropertyValueMap::iterator it = d_ptr->m_values.find(property);
+    if (it == d_ptr->m_values.end())
+        return;
+
+    QtStringPropertyManagerPrivate::Data data = it.value();
+
+    if (data.val == val)
+        return;
+
+    if (data.regExp.isValid() && !data.regExp.exactMatch(val))
+        return;
+
+    data.val = val;
+
+    it.value() = data;
     emit propertyChanged(property);
-    emit valueChanged(property, data.val);
 }
 
 /*!
@@ -1544,6 +1561,18 @@ void QtStringPropertyManager::setReadOnly(QtProperty *property, bool readOnly)
 
     emit propertyChanged(property);
     emit echoModeChanged(property, data.echoMode);
+}
+
+void QtStringPropertyManager::editingFinished(QtProperty *property)
+{
+    const QtStringPropertyManagerPrivate::PropertyValueMap::iterator it = d_ptr->m_values.find(property);
+    if (it == d_ptr->m_values.end())
+        return;
+
+    QtStringPropertyManagerPrivate::Data data = it.value();
+
+    emit propertyChanged(property);
+    emit valueChanged(property, data.val);
 }
 
 /*!

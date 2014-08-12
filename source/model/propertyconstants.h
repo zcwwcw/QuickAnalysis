@@ -156,7 +156,42 @@ inline QVariant setNewContent(QVariant oriData, int setCount, QString appendStr)
         }
         newData = oriStr;
     }
+    else if(setCount == valueCount)
+    {
+        if(oriStr[oriStr.size() - 1] != ',')
+        {
+            oriStr.append(',');
+        }
+        newData = oriStr;
+    }
     return newData;
+}
+
+inline bool checkStringContent(QVariant data, int dataCount)
+{
+    QString str = data.toString();
+    QStringList strList = str.split(",", QString::SkipEmptyParts);
+    int valueCount = strList.size();
+    if(valueCount != dataCount)
+    {
+        return false;
+    }
+    return true;
+}
+
+inline QVariant correctStringContent(QVariant data, int decimals)
+{
+    QString correctStr;
+    QString str = data.toString();
+    QStringList strList = str.split(",", QString::SkipEmptyParts);
+    for(int i = 0, iend = strList.size(); i < iend; i++)
+    {
+        QString valueStr = strList[i];
+        float value = valueStr.toFloat();
+        correctStr.append(QString::number(value, 'f', decimals));
+        correctStr.append(",");
+    }
+    return correctStr;
 }
 
 inline bool getBoolValue(const QString value)

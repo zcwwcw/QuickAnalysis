@@ -267,7 +267,7 @@ void PropertyDockWidget::updateProperty(const QHash<QString, QVariant> &property
         }
         case PROPERTY_TYPE_STRING:
         {
-            m_stringManager->setValue(item, value.toString());
+            m_stringManager->setValueWithUpdate(item, value.toString());
             break;
         }
         case PROPERTY_TYPE_BOOL:
@@ -290,6 +290,20 @@ void PropertyDockWidget::updateProperty(const QHash<QString, QVariant> &property
         case PROPERTY_TYPE_ENUM_GROUP:
         {
             m_enumManager->setValue(item, value.toInt());
+            QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
+            foreach(QVariant property, childProperties)
+            {
+                QHash<QString, QVariant> childProperty = property.toHash();
+                if(childProperty.isEmpty())
+                {
+                    continue;
+                }
+                updateProperty(childProperty);
+            }
+            break;
+        }
+        case PROPERTY_TYPE_GROUP:
+        {
             QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
             foreach(QVariant property, childProperties)
             {

@@ -979,6 +979,7 @@ public:
     void slotSetValue(const QString &value);
     void slotEchoModeChanged(QtProperty *, int);
     void slotReadOnlyChanged(QtProperty *, bool);
+    void slotEditingFinished();
 };
 
 void QtLineEditFactoryPrivate::slotPropertyChanged(QtProperty *property,
@@ -1058,6 +1059,21 @@ void QtLineEditFactoryPrivate::slotReadOnlyChanged( QtProperty *property, bool r
         editor->setReadOnly(readOnly);
         editor->blockSignals(false);
     }
+}
+
+void QtLineEditFactoryPrivate::slotEditingFinished()
+{
+    QObject *object = q_ptr->sender();
+    const QMap<QLineEdit *, QtProperty *>::ConstIterator ecend = m_editorToProperty.constEnd();
+    for (QMap<QLineEdit *, QtProperty *>::ConstIterator itEditor = m_editorToProperty.constBegin(); itEditor != ecend; ++itEditor)
+        if (itEditor.key() == object) {
+            QtProperty *property = itEditor.value();
+            QtStringPropertyManager *manager = q_ptr->propertyManager(property);
+            if (!manager)
+                return;
+            manager->editingFinished(property);
+            return;
+        }
 }
 
 void QtLineEditFactoryPrivate::slotSetValue(const QString &value)
@@ -1146,6 +1162,8 @@ QWidget *QtLineEditFactory::createEditor(QtStringPropertyManager *manager,
                 this, SLOT(slotSetValue(const QString &)));
     connect(editor, SIGNAL(destroyed(QObject *)),
                 this, SLOT(slotEditorDestroyed(QObject *)));
+    connect(editor, SIGNAL(editingFinished()),
+            this, SLOT(slotEditingFinished()));
     return editor;
 }
 
