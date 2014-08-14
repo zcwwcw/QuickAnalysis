@@ -52,6 +52,7 @@ private:
     float m_rough;
     Qt::CheckState m_rhrCheck;
     float m_rhr;
+    Qt::CheckState m_crudeCheck;
 
     Qt::CheckState m_scaleCheck;
     float m_scale;
