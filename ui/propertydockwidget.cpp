@@ -220,6 +220,23 @@ QtProperty *PropertyDockWidget::addProperty(const QHash<QString, QVariant> &prop
             }
             break;
         }
+        case PROPERTY_TYPE_BOOL_GROUP:
+        {
+            item = m_boolManager->addProperty(showText);
+            m_boolManager->setValue(item, value.toBool());
+            QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
+            foreach(QVariant property, childProperties)
+            {
+                QHash<QString, QVariant> childProperty = property.toHash();
+                if(childProperty.isEmpty())
+                {
+                    continue;
+                }
+                QtProperty *childItem = addProperty(childProperty);
+                item->addSubProperty(childItem);
+            }
+            break;
+        }
         default:
             break;
     }
@@ -304,6 +321,21 @@ void PropertyDockWidget::updateProperty(const QHash<QString, QVariant> &property
         }
         case PROPERTY_TYPE_GROUP:
         {
+            QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
+            foreach(QVariant property, childProperties)
+            {
+                QHash<QString, QVariant> childProperty = property.toHash();
+                if(childProperty.isEmpty())
+                {
+                    continue;
+                }
+                updateProperty(childProperty);
+            }
+            break;
+        }
+        case PROPERTY_TYPE_BOOL_GROUP:
+        {
+            m_boolManager->setValue(item, value.toBool());
             QList<QVariant> childProperties = property.value(PropertyConstants::CHILD_PROPERTY).toList();
             foreach(QVariant property, childProperties)
             {

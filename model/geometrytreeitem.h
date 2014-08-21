@@ -64,9 +64,11 @@ private:
     TnoseType m_tnose;
     float m_power;
 
+    bool m_headTypeEnable;
     HeadType m_headType;
     float m_bnose;
 
+    bool m_tailEnable;
     float m_lcentr;
     float m_dcentr;
     float m_laft;
@@ -74,8 +76,9 @@ private:
     Qt::CheckState m_taftCheck;
     TaftType m_taft;
 
-
+    bool m_bottomResistanceEnable;
     float m_dexit;
+    bool m_bottomInterferenceEnable;
     bool m_base;
 
     float m_betan;
@@ -83,7 +86,7 @@ private:
     QVariant m_prat;
     QVariant m_trat;
 
-    Qt::CheckState m_xoCheck;
+    bool m_locationParEnable;
     float m_xo;
 
     int m_nx;

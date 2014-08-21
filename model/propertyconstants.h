@@ -12,6 +12,7 @@ enum PropertyType
     PROPERTY_TYPE_GROUP,
     PROPERTY_TYPE_ENUM,
     PROPERTY_TYPE_ENUM_GROUP,
+    PROPERTY_TYPE_BOOL_GROUP,
     PROPERTY_TYPE_INT,
     PROPERTY_TYPE_DOUBLE,
     PROPERTY_TYPE_STRING,
@@ -74,63 +75,6 @@ inline PropertyItem getPropertyItem(const QString &name,
     if(!pattern.isEmpty())
         property.insert(PropertyConstants::PROPERTY_PATTERN, pattern);
     return property;
-}
-
-enum PatternType
-{
-    NINETY_TO_NEGATIVE_NINETY,
-    INT_INFINITE_TO_ZERO,
-    DECIMALS_LOW_HUNDRED_UP_ZERO,
-    DECIMALS_INFINITE_TO_ZERO,
-    DECIMALS_NO_LIMIT
-};
-
-inline QString getPattern(const PatternType &type, const int &count)
-{
-    QString pattern;
-    switch(type)
-    {
-    case NINETY_TO_NEGATIVE_NINETY:
-    {
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            pattern.append("[-+]?[0-9]\\d{0,1},");
-        }
-        break;
-    }
-    case DECIMALS_LOW_HUNDRED_UP_ZERO:
-    {
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            pattern.append("[0-9]\\d{0,1}.[0-9]\\d{0,1},");
-        }
-        break;
-    }
-    case DECIMALS_INFINITE_TO_ZERO:
-    {
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            pattern.append("[0-9]\\d{0,9}.[0-9]\\d{0,1},");
-        }
-        break;
-    }
-    case DECIMALS_NO_LIMIT:
-    {
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            pattern.append("\\d+.[0-9]\\d{0,1},");
-        }
-        break;
-    }
-    case INT_INFINITE_TO_ZERO:
-    {
-        for(int i = 0, iend = count; i < iend; i++)
-        {
-            pattern.append("\\d+.");
-        }
-    }
-    }
-    return pattern;
 }
 
 inline QVariant setNewContent(QVariant oriData, int setCount, QString appendStr)

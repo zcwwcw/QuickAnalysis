@@ -30,31 +30,25 @@ public:
 
     void setNewPropertyData(QString objectName, QString value);
 
-    void setNewPropertyCheckState(QString objectName, Qt::CheckState value);
-
     float getXCGValue() const;
 private:
     float m_xcg;
     float m_zcg;
 
-    Qt::CheckState m_srefCheck;
+    bool m_referenceEnable;
     float m_sref;
-    Qt::CheckState m_lrefCheck;
     float m_lref;
-    Qt::CheckState m_latrefCheck;
     float m_latref;
 
-    Qt::CheckState m_blayerCheck;
+    bool m_blayerEnable;
     BlayerType m_blayer;
 
+    bool m_roughnessEnable;
     CrudeType m_crude;
-    Qt::CheckState m_roughCheck;
     float m_rough;
-    Qt::CheckState m_rhrCheck;
     float m_rhr;
-    Qt::CheckState m_crudeCheck;
 
-    Qt::CheckState m_scaleCheck;
+    bool m_scaleEnable;
     float m_scale;
 };
 
