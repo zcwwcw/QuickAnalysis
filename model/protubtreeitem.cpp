@@ -1,10 +1,14 @@
 #include "protubtreeitem.h"
 
 const QLatin1String PROTUBKEY("PROTUB");
+const QLatin1String NPROTGROUPKEY("NPROTGROUP");
 const QLatin1String NPROTKEY("NPROT");
 const QLatin1String PTYPEKEY("PTYPE");
+const QLatin1String XPROTGROUPKEY("XPROTGROUP");
 const QLatin1String XPROTKEY("XPROT");
+const QLatin1String NLOCGROUPKEY("NLOCGROUP");
 const QLatin1String NLOCKEY("NLOC");
+const QLatin1String SIZEPROTGROUPKEY("SIZEPROTGROUP");
 const QLatin1String LPROTKEY("LPROT");
 const QLatin1String WPROTKEY("WPROT");
 const QLatin1String HPROTKEY("HPROT");
@@ -101,10 +105,19 @@ void ProtubTreeItem::setContent(const CaseContent &caseContent)
 QList<QVariant> ProtubTreeItem::getProperty() const
 {
     QList<QVariant> propertyItems;
+    //NPROT GROUP
+    PropertyItem nprotubGroupItem = getPropertyItem(NPROTGROUPKEY, tr("NPROT GROUP"),
+                                                  PROPERTY_TYPE_GROUP);
+    QList<QVariant> nprotubChildProperty;
+    
     //NPROT
-    propertyItems.append(getPropertyItem(NPROTKEY, tr("NPROT"),
+    nprotubChildProperty.append(getPropertyItem(NPROTKEY, tr("NPROT"),
                                          PROPERTY_TYPE_INT, m_nprot,
                                          0, 20));
+
+    nprotubGroupItem.insert(PropertyConstants::CHILD_PROPERTY, nprotubChildProperty);
+    propertyItems.append(nprotubGroupItem);
+
     //PTYPE
     PropertyItem ptypeGroupItem = getPropertyItem(PTYPEKEY, tr("PTYPE"),
                                                  PROPERTY_TYPE_GROUP);
@@ -121,30 +134,55 @@ QList<QVariant> ProtubTreeItem::getProperty() const
     }
     ptypeGroupItem.insert(PropertyConstants::CHILD_PROPERTY, ptypeChildProperty);
     propertyItems.append(ptypeGroupItem);
+
+    //xprot group
+    PropertyItem xprotubGroupItem = getPropertyItem(XPROTGROUPKEY, tr("XPROT GROUP"),
+                                                  PROPERTY_TYPE_GROUP);
+    QList<QVariant> xprotubChildProperty;
+
     //XPROT
     PropertyItem xprotItem = getPropertyItem(XPROTKEY, tr("XPROT"),
                                              PROPERTY_TYPE_STRING, m_xprot);
-    propertyItems.append(xprotItem);
+    xprotubChildProperty.append(xprotItem);
+    xprotubGroupItem.insert(PropertyConstants::CHILD_PROPERTY, xprotubChildProperty);
+    propertyItems.append(xprotubGroupItem);
+
+    //nloc group
+    PropertyItem nlocGroupItem = getPropertyItem(NLOCGROUPKEY, tr("NLOC GROUP"),
+                                                 PROPERTY_TYPE_GROUP);
+    QList<QVariant> nlocChildProperty;
+
     //NLOC
     PropertyItem nlocItem = getPropertyItem(NLOCKEY, tr("NLOC"),
                                             PROPERTY_TYPE_STRING, m_nloc);
-    propertyItems.append(nlocItem);
+    nlocChildProperty.append(nlocItem);
+    nlocGroupItem.insert(PropertyConstants::CHILD_PROPERTY, nlocChildProperty);
+    propertyItems.append(nlocGroupItem);
+
+    //SIZE PROT GROUP
+    PropertyItem sizeProtGroupItem = getPropertyItem(SIZEPROTGROUPKEY, tr("SIZE PROT GROUP"),
+                                                     PROPERTY_TYPE_GROUP);
+    QList<QVariant> sizeProtChildProperty;
+
     //LPROT
     PropertyItem lprotItem = getPropertyItem(LPROTKEY, tr("LPROT"),
                                             PROPERTY_TYPE_STRING, m_lprot);
-    propertyItems.append(lprotItem);
+    sizeProtChildProperty.append(lprotItem);
     //WPROT
     PropertyItem wprotItem = getPropertyItem(WPROTKEY, tr("WPROT"),
                                             PROPERTY_TYPE_STRING, m_wprot);
-    propertyItems.append(wprotItem);
+    sizeProtChildProperty.append(wprotItem);
     //HPROT
     PropertyItem hprotItem = getPropertyItem(HPROTKEY, tr("HPROT"),
                                             PROPERTY_TYPE_STRING, m_hprot);
-    propertyItems.append(hprotItem);
+    sizeProtChildProperty.append(hprotItem);
     //OPROT
     PropertyItem oprotItem = getPropertyItem(OPROTKEY, tr("OPROT"),
                                             PROPERTY_TYPE_STRING, m_oprot);
-    propertyItems.append(oprotItem);
+    sizeProtChildProperty.append(oprotItem);
+    sizeProtGroupItem.insert(PropertyConstants::CHILD_PROPERTY, sizeProtChildProperty);
+    propertyItems.append(sizeProtGroupItem);
+
     return propertyItems;
 }
 
@@ -153,6 +191,28 @@ void ProtubTreeItem::setNewPropertyData(QString objectName, QString value)
     if(objectName == NPROTKEY)
     {
         m_nprot = value.toInt();
+        if(m_ptype.size() != m_nprot)
+        {
+            if(m_ptype.size() > m_nprot)
+            {
+                int offset = m_ptype.size() - m_nprot;
+                while(offset > 0)
+                {
+                    m_ptype.removeLast();
+                    offset--;
+                }
+            }
+            else
+            {
+                int offset = m_nprot - m_ptype.size();
+                while(offset > 0)
+                {
+                    m_ptype.append(VCYL);
+                    offset--;
+                }
+            }
+        }
+        emit propertiesRebuild();
     }
     else if(objectName.contains(PTYPEKEY))
     {

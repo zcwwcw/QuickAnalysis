@@ -4,6 +4,7 @@
 #include <QList>
 #include <QVariant>
 #include <QObject>
+#include <QSignalMapper>
 #include "casecontent.h"
 #include "model_global.h"
 
@@ -24,6 +25,8 @@ public:
     int row() const;
     TreeItem *parent();
 
+    virtual void setPropertiesSingalMapper(QSignalMapper *itemMapper1, QSignalMapper *itemMapper2);
+
     virtual void setContent(const CaseContent &caseContent);
 
     virtual QList<QVariant> getProperty() const;
@@ -40,6 +43,10 @@ protected:
 private:
     QList<TreeItem*> m_childItems;
     QList<QVariant> m_itemData;
+
+    //properties mapper
+    QSignalMapper *m_itemMapper1;
+    QSignalMapper *m_itemMapper2;
 };
 
 #endif // TREEITEM_H

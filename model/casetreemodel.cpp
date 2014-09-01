@@ -143,34 +143,26 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
     QList<QVariant> caseItmeData;
     caseItmeData << caseInfo.baseName();
     TreeItem *caseItem = new TreeItem(caseItmeData, parent);
+    //caseItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     parent->appendChild(caseItem);
 
     QList<QVariant> modelItemData;
     modelItemData << tr("Model");
     TreeItem *modelItem = new ModelTreeItem(modelItemData, caseItem);
-    connect(modelItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(modelItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(modelItem, modelItem);
-    m_itemMapper2->setMapping(modelItem, modelItem);
+    //modelItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     caseItem->appendChild(modelItem);
 
     QList<QVariant> fltconItemData;
     fltconItemData << tr("FLTCON");
     FltconTreeItem *fltconItem = new FltconTreeItem(fltconItemData, modelItem);
-    connect(fltconItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(fltconItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(fltconItem, fltconItem);
-    m_itemMapper2->setMapping(fltconItem, fltconItem);
+    fltconItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     fltconItem->setContent(caseContent);
     modelItem->appendChild(fltconItem);
 
     QList<QVariant> refqItemData;
     refqItemData << tr("REFQ");
     RefqTreeItem *refqItem = new RefqTreeItem(refqItemData, modelItem);
-    connect(refqItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(refqItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(refqItem, refqItem);
-    m_itemMapper2->setMapping(refqItem, refqItem);
+    refqItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     refqItem->setContent(caseContent);
     modelItem->appendChild(refqItem);
 
@@ -179,70 +171,49 @@ TreeItem *CaseTreeModel::setupModelData(const QString &filePath, TreeItem *paren
     GeometryTreeItem *geometryItem = new GeometryTreeItem(geometryItemData, modelItem);
     connect(fltconItem, SIGNAL(nvinfChanged()), geometryItem, SLOT(nmachOrnvinfChanged()));
     connect(fltconItem, SIGNAL(nmachChanged()), geometryItem, SLOT(nmachOrnvinfChanged()));
-    connect(geometryItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(geometryItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(geometryItem, geometryItem);
-    m_itemMapper2->setMapping(geometryItem, geometryItem);
+    geometryItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     geometryItem->setContent(caseContent);
     modelItem->appendChild(geometryItem);
 
     QList<QVariant> protubItemData;
     protubItemData << tr("PROTUB");
     ProtubTreeItem *protubItem = new ProtubTreeItem(protubItemData, modelItem);
-    connect(protubItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(protubItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(protubItem, protubItem);
-    m_itemMapper2->setMapping(protubItem, protubItem);
+    protubItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     protubItem->setContent(caseContent);
     modelItem->appendChild(protubItem);
 
     QList<QVariant> finsetItemData;
     finsetItemData << tr("FINSET");
     FinsetTreeItem *finsetItem = new FinsetTreeItem(finsetItemData, modelItem);
-    connect(finsetItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(finsetItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(finsetItem, finsetItem);
-    m_itemMapper2->setMapping(finsetItem, finsetItem);
+    finsetItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     finsetItem->setContent(caseContent);
     modelItem->appendChild(finsetItem);
 
     QList<QVariant> deflctItemData;
     deflctItemData << tr("DEFLCT");
     DeflctTreeItem *deflctItem = new DeflctTreeItem(deflctItemData, modelItem);
-    connect(deflctItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(deflctItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(deflctItem, deflctItem);
-    m_itemMapper2->setMapping(deflctItem, deflctItem);
+    deflctItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     deflctItem->setContent(caseContent);
     modelItem->appendChild(deflctItem);
 
     QList<QVariant> trimItemData;
     trimItemData << tr("TRIM");
     TrimTreeItem *trimItem = new TrimTreeItem(trimItemData, modelItem);
-    connect(trimItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(trimItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(trimItem, trimItem);
-    m_itemMapper2->setMapping(trimItem, trimItem);
+    trimItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     trimItem->setContent(caseContent);
     modelItem->appendChild(trimItem);
 
     QList<QVariant> inletItemData;
     inletItemData << tr("INLET");
     InletTreeItem *inletItem = new InletTreeItem(inletItemData, modelItem);
-    connect(inletItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(inletItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(inletItem, inletItem);
-    m_itemMapper2->setMapping(inletItem, inletItem);
+    inletItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     inletItem->setContent(caseContent);
     modelItem->appendChild(inletItem);
 
     QList<QVariant> solutionItemData;
     solutionItemData << tr("Solution");
     SolutionTreeItem *solutionItem = new SolutionTreeItem(solutionItemData, caseItem);
-    connect(solutionItem, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
-    connect(solutionItem, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
-    m_itemMapper1->setMapping(solutionItem, solutionItem);
-    m_itemMapper2->setMapping(solutionItem, solutionItem);
+    solutionItem->setPropertiesSingalMapper(m_itemMapper1, m_itemMapper2);
     caseItem->appendChild(solutionItem);
     return caseItem;
 }

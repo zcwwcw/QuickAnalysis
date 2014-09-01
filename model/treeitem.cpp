@@ -1,7 +1,8 @@
 #include "treeitem.h"
 
 TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parent)
-    : QObject(parent), m_parentItem(parent), m_itemData(data)
+    : QObject(parent), m_parentItem(parent), m_itemData(data),
+      m_itemMapper1(NULL), m_itemMapper2(NULL)
 {
 }
 
@@ -30,6 +31,16 @@ int TreeItem::row() const
 TreeItem *TreeItem::parent()
 {
     return m_parentItem;
+}
+
+void TreeItem::setPropertiesSingalMapper(QSignalMapper *itemMapper1, QSignalMapper *itemMapper2)
+{
+    m_itemMapper1 = itemMapper1;
+    m_itemMapper2 = itemMapper2;
+    connect(this, SIGNAL(propertiesUpdate()), m_itemMapper1, SLOT(map()));
+    connect(this, SIGNAL(propertiesRebuild()), m_itemMapper2, SLOT(map()));
+    m_itemMapper1->setMapping(this, this);
+    m_itemMapper2->setMapping(this, this);
 }
 
 void TreeItem::setContent(const CaseContent &caseContent)

@@ -26,7 +26,8 @@ SOURCES += \
     geometrytreeitem.cpp \
     protubtreeitem.cpp \
     trimtreeitem.cpp \
-    inlettreeitem.cpp
+    inlettreeitem.cpp \
+    finsetchildtreeitem.cpp
 
 HEADERS +=\
         model_global.h \
@@ -44,7 +45,8 @@ HEADERS +=\
     protubtreeitem.h \
     trimtreeitem.h \
     inlettreeitem.h \
-    propertyconstants.h
+    propertyconstants.h \
+    finsetchildtreeitem.h
 
 CONFIG(debug, debug|release){
     LIBS += -L$$PWD/../libs/debug
