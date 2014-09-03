@@ -263,7 +263,6 @@ CaseContent CaseTreeModel::getContent(const QString &tmpData)
             valueContent.value = value;
             itemContent.childContent.insert(key, valueContent);
         }
-
         content.childContent.insert(itemKeyRx.cap().remove("$"), itemContent);
     }
     return content;

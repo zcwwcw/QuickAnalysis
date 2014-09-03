@@ -19,6 +19,7 @@ void FinsetTreeItem::setContent(const CaseContent &caseContent)
             QList<QVariant> finsetChildItemData;
             finsetChildItemData << tr("FINSET") + key[key.size() - 1];
             FinsetChildTreeItem *childItem = new FinsetChildTreeItem(finsetChildItemData, this);
+            childItem->setContentKey(key);
             childItem->setContent(caseContent);
             this->appendChild(childItem);
         }
